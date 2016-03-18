@@ -23,6 +23,7 @@ var husky = function() {
 
     if (! husky.drivers.hasOwnProperty(guid) ) {
       console.log("Registered driver " + guid);
+      
       husky.drivers[guid] = new obj( husky );
       if ( husky.drivers[guid].hasOwnProperty("init") ) {
         husky.drivers[guid].init();
