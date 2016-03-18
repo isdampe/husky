@@ -1,0 +1,17 @@
+{
+  "name": "Husky",
+  "description": "A source code editor",
+  "version": "0.1",
+  "manifest_version": 2,
+  "app": {
+    "background": {
+      "scripts": ["core/husky.js"]
+    }
+  },
+  "icons": { "16": "assets/media/logo-16.png", "128": "assets/media/logo-128.png" },
+  "permissions": [
+    {
+      "fileSystem": ["write", "retainEntries", "directory"]
+    } 
+  ]
+}

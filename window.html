@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<link rel="stylesheet" href="assets/css/style.css">
+	<link rel="stylesheet" href="core/vendor/codemirror/lib/codemirror.css">
+	<link rel="stylesheet" href="core/vendor/codemirror/theme/monokai.css">
+</head>
+<body>
+  <div id="cmd" class="cmd">
+    <div class="in">
+      <input type="text" id="cmd-input" />
+
+			<ul id="cmd-list" class="cmd-list">
+
+	    </ul>
+    </div>
+  </div>
+
+	<div class="editors tc">
+
+		<div class="viewport active" id="vp1">
+			<textarea id="codemirror-1"></textarea>
+			<nav>
+				/home/dampe/buffer.html 16827128 bytes
+			</nav>
+		</div>
+		<div class="viewport" id="vp2">
+			<textarea id="codemirror-2"></textarea>
+			<nav>
+				/home/dampe/buffer.html 16827128 bytes
+			</nav>
+		</div>
+		<div class="viewport" id="vp3">
+			<textarea id="codemirror-3"></textarea>
+			<nav>
+				/home/dampe/buffer.html 16827128 bytes
+			</nav>
+		</div>
+		<div class="viewport" id="vp4">
+			<textarea id="codemirror-4"></textarea>
+			<nav>
+				/home/dampe/buffer.html 16827128 bytes
+			</nav>
+		</div>
+
+	</div>
+
+	<script src="core/vendor/codemirror/lib/codemirror.js"></script>
+	<script src="core/vendor/codemirror/mode/javascript/javascript.js"></script>
+	<script src="core/core.js"></script>
+	<script src="core/drivers/chrome-fs.js"></script>
+</body>
+</html>
