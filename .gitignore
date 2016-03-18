@@ -1,2 +1,13 @@
 .sass-cache/*
 *.swp
+
+#node-webkit things
+credits.html
+icudtl.dat
+natives_blob.bin
+snapshot_blob.bin
+nw_100_percent.pak
+resources.pak
+lib/*.so
+locales/*
+nw

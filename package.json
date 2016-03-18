@@ -1,0 +1,21 @@
+{
+  "main": "window.html",
+  "name": "Husky",
+  "description": "A source code editor",
+  "version": "0.1.0",
+  "keywords": [ "source", "texteditor", "node-webkit" ],
+  "window": {
+    "title": "Husky",
+    "icon": "assets/media/logo-128.png",
+    "toolbar": false,
+    "frame": true,
+    "width": 1280,
+    "height": 720,
+    "position": "mouse",
+    "min_width": 400,
+    "min_height": 200
+  },
+  "webkit": {
+    "plugin": true
+  }
+}
