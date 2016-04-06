@@ -11,3 +11,6 @@ resources.pak
 lib/*.so
 locales/*
 nw
+libffmpegsumo.so
+nw.pak
+nwjc

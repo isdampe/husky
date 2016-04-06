@@ -21,25 +21,29 @@
 		<div class="viewport active" id="vp1">
 			<textarea id="codemirror-1"></textarea>
 			<nav>
-				/home/dampe/buffer.html 16827128 bytes
+				<span id="vp1-buffer"></span>
+				<span id="vp1-size"></span>
 			</nav>
 		</div>
 		<div class="viewport" id="vp2">
 			<textarea id="codemirror-2"></textarea>
 			<nav>
-				/home/dampe/buffer.html 16827128 bytes
+				<span id="vp2-buffer">/dev/null</span>
+				<span id="vp2-size">0 bytes</span>
 			</nav>
 		</div>
 		<div class="viewport" id="vp3">
 			<textarea id="codemirror-3"></textarea>
 			<nav>
-				/home/dampe/buffer.html 16827128 bytes
+				<span id="vp3-buffer">/dev/null</span>
+				<span id="vp3-size">0 bytes</span>
 			</nav>
 		</div>
 		<div class="viewport" id="vp4">
 			<textarea id="codemirror-4"></textarea>
 			<nav>
-				/home/dampe/buffer.html 16827128 bytes
+				<span id="vp4-buffer">/dev/null</span>
+				<span id="vp4-size">0 bytes</span>
 			</nav>
 		</div>
 
@@ -48,6 +52,7 @@
 	<script src="core/vendor/codemirror/lib/codemirror.js"></script>
 	<script src="core/vendor/codemirror/mode/javascript/javascript.js"></script>
 	<script src="core/core.js"></script>
+	<script src="core/drivers/nwjs-fs.js"></script>
 	<script src="core/drivers/chrome-fs.js"></script>
 </body>
 </html>
