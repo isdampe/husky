@@ -4,6 +4,7 @@
 	<link rel="stylesheet" href="assets/css/style.css">
 	<link rel="stylesheet" href="core/vendor/codemirror/lib/codemirror.css">
 	<link rel="stylesheet" href="core/vendor/codemirror/theme/monokai.css">
+	<link rel="stylesheet" href="core/vendor/codemirror/addon/fold/foldgutter.css">
 </head>
 <body>
   <div id="cmd" class="cmd">
@@ -50,7 +51,20 @@
 	</div>
 
 	<script src="core/vendor/codemirror/lib/codemirror.js"></script>
-	<script src="core/vendor/codemirror/mode/javascript/javascript.js"></script>
+	<script src="core/vendor/codemirror/addon/mode/loadmode.js"></script>
+	<script src="core/vendor/codemirror/mode/meta.js"></script>
+
+	<script src="core/vendor/codemirror/addon/edit/closebrackets.js"></script>
+
+	<script src="core/vendor/codemirror/addon/fold/foldcode.js"></script>
+	<script src="core/vendor/codemirror/addon/fold/foldgutter.js"></script>
+	<script src="core/vendor/codemirror/addon/fold/brace-fold.js"></script>
+	<script src="core/vendor/codemirror/addon/fold/xml-fold.js"></script>
+	<script src="core/vendor/codemirror/addon/fold/markdown-fold.js"></script>
+	<script src="core/vendor/codemirror/addon/fold/comment-fold.js"></script>
+
+
+	<!--<script src="core/vendor/codemirror/mode/javascript/javascript.js"></script>-->
 	<script src="core/core.js"></script>
 	<script src="core/drivers/nwjs-fs.js"></script>
 	<script src="core/drivers/chrome-fs.js"></script>

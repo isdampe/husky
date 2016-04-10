@@ -351,7 +351,10 @@ var husky = function() {
       styleActiveLine: true,
       matchBrackets: true,
       theme: husky.config.CodeMirror.theme,
-      mode: "javascript"
+      mode: "text",
+      foldGutter: true,
+      gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+      autoCloseBrackets: true
     });
 
     //Hooks.
@@ -371,6 +374,40 @@ var husky = function() {
     };
 
     return buffer;
+
+  };
+
+  husky.autoSetMode = function( i ) {
+
+    var cm = husky.buffers[i].CodeMirror;
+
+    var val = husky.buffers[i].uri, m, mode, spec;
+
+    if (m = /.+\.([^.]+)$/.exec(val)) {
+      var info = CodeMirror.findModeByExtension(m[1]);
+      if (info) {
+        mode = info.mode;
+        spec = info.mime;
+      }
+    } else if (/\//.test(val)) {
+      var info = CodeMirror.findModeByMIME(val);
+      if (info) {
+        mode = info.mode;
+        spec = val;
+      }
+    } else {
+      mode = spec = val;
+    }
+
+    console.log(mode);
+
+    if (mode) {
+      cm.setOption("mode", spec);
+      CodeMirror.autoLoadMode(cm, mode);
+    } else {
+      console.error('Could not find a mode');
+    }
+
 
   };
 
@@ -527,6 +564,7 @@ var husky = function() {
     husky.clearBuffer( key );
     husky.buffers[key].uri = uri;
     husky.currentKey = key;
+    husky.autoSetMode(key);
 
     if ( uri !== null ) {
       husky.fetchBufferByUri( uri, callback );
