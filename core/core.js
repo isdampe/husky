@@ -12,7 +12,7 @@ var husky = function() {
 
   husky.config = {
     'CodeMirror': {
-      'theme': 'monokai'
+      'theme': 'one-dark'
     },
     activeDriver: {
       fs: null
