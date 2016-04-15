@@ -21,6 +21,7 @@ var husky = function() {
 
   husky.cmd = {};
   husky.commands = [];
+  husky.cmdSuggestion = document.getElementById('cmd-suggestion');
 
   husky.registerDriver = function( guid, obj ) {
 
@@ -93,6 +94,7 @@ var husky = function() {
 
     if ( husky.cmd.active === false ) {
 
+      husky.clearSuggestions();
       husky.cmd.el.style.display = "block";
       husky.cmd.inpt.focus();
       husky.cmd.active = true;
@@ -105,6 +107,7 @@ var husky = function() {
 
     if ( husky.cmd.active === true ) {
 
+      husky.clearSuggestions();
       husky.cmd.inpt.value = "";
       husky.cmd.el.style.display = "none";
       husky.cmd.inpt.blur();
@@ -113,6 +116,11 @@ var husky = function() {
 
     }
 
+  };
+
+  husky.clearSuggestions = function() {
+    husky.cmdSuggestion.value = "";
+    husky.cmdSuggestion.style.display = "none";
   };
 
   husky.swapBuffers = function(step) {
@@ -221,7 +229,22 @@ var husky = function() {
       husky.toggleCmdHistory(1);
     } else if ( e.keyCode === 40 ) {
       husky.toggleCmdHistory(-1);
+    } else if ( e.keyCode === 39 ) {
+      husky.autoFillCmd();
+    } else if ( e.keyCode === 9 ) {
+      e.preventDefault();
+      husky.autoFillCmd();
     }
+
+  };
+
+  husky.autoFillCmd = function() {
+
+    if (! husky.cmdSuggestion.value || husky.cmdSuggestion.value === "" ) {
+      return false;
+    }
+
+    husky.setCmd( husky.cmdSuggestion.value );
 
   };
 
@@ -257,14 +280,17 @@ var husky = function() {
 
     var vl, i = 0, max = husky.commands.length;
     var sr = [], mt;
-    var currentCmd = null;
+    var currentCmd = null, cmdKey = null;
     var argv, argc, args;
 
     vl = husky.cmd.inpt.value;
     if ( vl === "" ) {
+      husky.clearSuggestions();
       for ( i; i<max; i++ ) {
         husky.commands[i].el.style.display = "block";
       }
+
+      cmdKey = null;
       return false;
     }
 
@@ -275,11 +301,25 @@ var husky = function() {
         husky.commands[i].el.style.display = "block";
         if (! currentCmd ) {
           currentCmd = husky.commands[i];
+          cmdKey = i;
         }
       } else {
         husky.commands[i].el.style.display = "none";
       }
 
+    }
+
+    args = vl.split(" ");
+    argc = args.length -1;
+    argv = args;
+    argv.splice(0,1);
+
+    if ( currentCmd ) {
+      if ( husky.commands[cmdKey].hasOwnProperty('suggestion') ) {
+        husky.commands[cmdKey].suggestion(vl,argc,argv);
+      } else {
+        husky.clearSuggestions();
+      }
     }
 
     if ( e.keyCode === 13 ) {
@@ -290,11 +330,6 @@ var husky = function() {
           husky.commandMemory.unshift( vl );
           husky.lastCommand = vl;
         }
-
-        args = vl.split(" ");
-        argc = args.length -1;
-        argv = args;
-        argv.splice(0,1);
 
         if ( currentCmd.fn( argv, argc ) ) {
           for ( i=0; i<max; i++ ) {
@@ -398,8 +433,6 @@ var husky = function() {
     } else {
       mode = spec = val;
     }
-
-    console.log(mode);
 
     if (mode) {
       cm.setOption("mode", spec);
@@ -597,6 +630,38 @@ var husky = function() {
 
   };
 
+  husky.suggestFileByArgs = function(vl, argc, argv) {
+
+    var uri = argv[0] || "", sgs = husky.cmdSuggestion, margs;
+
+    //Try and write the data.
+    var fsDriver = husky.config.activeDriver.fs || null;
+    if (! fsDriver ) {
+      callback('No fs driver registered. Cannot suggestFileByArgs.');
+      return false;
+    }
+
+    //Open file buffer.
+    husky.drivers[fsDriver].getListOfSuggestions( uri, function(err,suggestions){
+      if ( err ) {
+        //Ensure we empty the suggestion.
+        husky.clearSuggestions();
+        return false;
+      }
+
+      margs = vl.split(" ");
+      if ( margs.length < 2 ) {
+        sgs.value = "";
+        sgs.style.display = "none";
+        return false;
+      }
+
+      sgs.value = margs[0] + ' ' + suggestions[0].suggestion;
+      sgs.style.display = "block";
+    });
+
+  };
+
   husky.registerCommands = function() {
 
     husky.commands.push({
@@ -625,7 +690,10 @@ var husky = function() {
       c: 'o file [viewport]',
       s: /^o\s?.*$/g,
       d: 'Opens a file into a new buffer',
-      fn: husky.openFileToBuffer
+      fn: husky.openFileToBuffer,
+      suggestion: function(vl,argc,argv) {
+        husky.suggestFileByArgs(vl,argc,argv);
+      }
     });
 
   };

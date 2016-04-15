@@ -58,7 +58,103 @@ var nwjs = function( husky ) {
       callback(err,true);
     });
 
-  }
+  };
+
+  nwg.getListOfSuggestions = function( uri, callback ) {
+
+    var path, file, search;
+
+    if ( uri === "" ) {
+      //Set default.
+      path = process.cwd() + '/';
+      search = "";
+    } else {
+      path = uri.substring(0,uri.lastIndexOf("/")+1);
+      if ( path.charAt(0) !== "/" ) {
+        path = process.cwd() + '/';
+      }
+
+      search = uri.substring(uri.lastIndexOf("/") +1);
+    }
+
+    if ( path == "" ) {
+      callback(true,null);
+      return false;
+    }
+
+    fs.readdir(path,function(err,files){
+
+      //Filter the results.
+      var i = 0, max = files.length, results = [];
+      if ( max < 1 ) {
+        callback(true,null);
+        return false;
+      }
+
+      for ( i; i<max; i++ ) {
+        if ( files[i].match( search ) ) {
+          var arr = {
+            suggestion: path + files[i],
+            match: nwg.similarity(files[i], search)
+          };
+          results.push(arr);
+        }
+      }
+
+      results.sort(function(a,b){
+        if(a.match < b.match) return 1;
+        if(a.match > b.match) return -1;
+        return 0;
+      });
+
+      if ( results.length > 0 ) {
+        callback(false,results);
+      }
+
+    });
+
+  };
+
+  nwg.similarity = function(s1, s2) {
+    var longer = s1;
+    var shorter = s2;
+    if (s1.length < s2.length) {
+      longer = s2;
+      shorter = s1;
+    }
+    var longerLength = longer.length;
+    if (longerLength == 0) {
+      return 1.0;
+    }
+    return (longerLength - nwg.editDistance(longer, shorter)) / parseFloat(longerLength);
+  };
+
+  nwg.editDistance = function(s1, s2) {
+    s1 = s1.toLowerCase();
+    s2 = s2.toLowerCase();
+
+    var costs = new Array();
+    for (var i = 0; i <= s1.length; i++) {
+      var lastValue = i;
+      for (var j = 0; j <= s2.length; j++) {
+        if (i == 0)
+          costs[j] = j;
+        else {
+          if (j > 0) {
+            var newValue = costs[j - 1];
+            if (s1.charAt(i - 1) != s2.charAt(j - 1))
+              newValue = Math.min(Math.min(newValue, lastValue),
+                costs[j]) + 1;
+            costs[j - 1] = lastValue;
+            lastValue = newValue;
+          }
+        }
+      }
+      if (i > 0)
+        costs[s2.length] = lastValue;
+    }
+    return costs[s2.length];
+  };
 
 };
 
