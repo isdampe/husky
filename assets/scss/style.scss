@@ -28,7 +28,7 @@ body {
     position: fixed;
     top: 0; right: 0; left: 0; bottom: 0;
     margin: auto;
-		position: relative;
+		position: fixed;
   }
 
 	ul {
@@ -131,7 +131,7 @@ body {
 }
 
 //Dual column mode.
-.dc {
+.twoc {
 	#vp1 {
 		width: 50%;
 		border-right: 3px solid #222;
@@ -140,9 +140,12 @@ body {
 		width: 50%;
 		border-left: 3px solid #222;
 	}
+	#vp3, #vp4 {
+		display: none;
+	}
 }
 
-.tc {
+.threec {
 	#vp1 {
 		width: 33.33%;
 		border-right: 3px solid #222;
@@ -156,10 +159,13 @@ body {
 		width: 33.33%;
 		border-left: 3px solid #222;
 	}
+	#vp4 {
+		display: none;
+	}
 }
 
 
-.qc {
+.fourc {
 	#vp1 {
 		width: 25%;
 		border-right: 3px solid #222;
@@ -180,6 +186,45 @@ body {
 	}
 }
 
+.twor {
+	#vp1 {
+		width: 100%;
+		height: 50%;
+	}
+	 #vp2 {
+		width: 100%;
+		height: 50%;
+	}
+	#vp3, #vp4 {
+		display: none;
+	}
+}
+
+.threer {
+	#vp1 {
+		width: 100%;
+		height: 33%;
+	}
+	 #vp2 {
+		width: 100%;
+		height: 33%;
+	}
+	#vp3 {
+	 width: 100%;
+	 height: 33%;
+ }
+	#vp4 {
+		display: none;
+	}
+}
+
+.fourr {
+	#vp1, #vp2, #vp3, #vp4 {
+		width: 100%;
+		height: 25%;
+	}
+}
+
 
 ::-webkit-scrollbar {
   width: 6px;
@@ -196,5 +241,5 @@ body {
   background: rgba(0,0,0,0.35);
 }
 ::-webkit-scrollbar-corner {
-  background: #0c0c0c;
+  background: transparent;
 }

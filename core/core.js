@@ -19,6 +19,46 @@ var husky = function() {
     }
   };
 
+  husky.viewportWrapper = document.getElementById('editors');
+  husky.viewportModes = {
+    "1c": {
+      visibleBuffers: 1,
+      className: "onec"
+    },
+    "2c": {
+      visibleBuffers: 2,
+      className: "twoc"
+    },
+    "3c": {
+      visibleBuffers: 3,
+      className: "threec"
+    },
+    "4c": {
+      visibleBuffers: 4,
+      className: "fourc"
+    },
+    "2r": {
+      visibleBuffers: 2,
+      className: "twor"
+    },
+    "3r": {
+      visibleBuffers: 3,
+      className: "threer"
+    },
+    "4r": {
+      visibleBuffers: 4,
+      className: "fourr"
+    },
+    "4g": {
+      visibleBuffers: 4,
+      className: "fourg"
+    },
+    "6g": {
+      visibleBuffers: 6,
+      className: "sixg"
+    }
+  };
+
   husky.cmd = {};
   husky.commands = [];
   husky.cmdSuggestion = document.getElementById('cmd-suggestion');
@@ -485,6 +525,35 @@ var husky = function() {
 
   };
 
+  husky.changeViewport = function( argv, argc, key ) {
+
+    if (! key ) {
+      key = husky.currentKey
+    }
+
+    var viewportMode;
+
+    if ( argc > 0 ) {
+      viewportMode = argv[0];
+    } else {
+      return false;
+    }
+
+    if (! husky.viewportModes.hasOwnProperty(viewportMode) ) {
+      console.error('Invalid viewport mode specified.');
+      return false;
+    }
+
+    husky.viewportWrapper.className = "editors " + husky.viewportModes[viewportMode].className;
+    husky.currentVisibleBuffers = husky.viewportModes[viewportMode].visibleBuffers;
+
+    //Fix me. Activate a lesser tab if the new mode displays less viewports than
+    //The current focus
+
+    return true;
+
+  };
+
   husky.writeBuffer = function( argv, argc, key ) {
 
     if (! key ) {
@@ -694,6 +763,13 @@ var husky = function() {
       suggestion: function(vl,argc,argv) {
         husky.suggestFileByArgs(vl,argc,argv);
       }
+    });
+    husky.commands.push({
+      name: 'Viewport layout',
+      c: 'v [viewtype]',
+      s: /^v\s?.*$/g,
+      d: 'Changes the viewport layout',
+      fn: husky.changeViewport
     });
 
   };
