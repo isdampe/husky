@@ -6,6 +6,7 @@ var husky = function() {
   husky.currentVisibleBuffers = 3;
   husky.buffers = {};
   husky.drivers = {};
+  husky.modules= {};
   husky.commandMemory = [];
   husky.lastCommand = null;
   husky.currentCommand = -1;
@@ -19,49 +20,22 @@ var husky = function() {
     }
   };
 
-  husky.viewportWrapper = document.getElementById('editors');
-  husky.viewportModes = {
-    "1c": {
-      visibleBuffers: 1,
-      className: "onec"
-    },
-    "2c": {
-      visibleBuffers: 2,
-      className: "twoc"
-    },
-    "3c": {
-      visibleBuffers: 3,
-      className: "threec"
-    },
-    "4c": {
-      visibleBuffers: 4,
-      className: "fourc"
-    },
-    "2r": {
-      visibleBuffers: 2,
-      className: "twor"
-    },
-    "3r": {
-      visibleBuffers: 3,
-      className: "threer"
-    },
-    "4r": {
-      visibleBuffers: 4,
-      className: "fourr"
-    },
-    "4g": {
-      visibleBuffers: 4,
-      className: "fourg"
-    },
-    "6g": {
-      visibleBuffers: 6,
-      className: "sixg"
-    }
-  };
-
   husky.cmd = {};
   husky.commands = [];
   husky.cmdSuggestion = document.getElementById('cmd-suggestion');
+
+  husky.registerModule = function( guid, obj ) {
+
+    if (! husky.modules.hasOwnProperty(guid) ) {
+      console.log("Registered module " + guid);
+
+      husky.modules[guid] = new obj( husky );
+      if ( husky.modules[guid].hasOwnProperty("init") ) {
+        husky.modules[guid].init();
+      }
+    }
+
+  };
 
   husky.registerDriver = function( guid, obj ) {
 
@@ -180,19 +154,13 @@ var husky = function() {
 
   };
 
-  husky.setupCmd = function() {
-
-    husky.cmd = {
-      active: false,
-      el: document.getElementById('cmd'),
-      inpt: document.getElementById('cmd-input'),
-      list: document.getElementById('cmd-list')
-    };
-
-    var t, l, hooke;
+  husky.refreshCmd = function() {
 
     //Inject commands.
     for ( var i=0; i<husky.commands.length; i++ ) {
+      if ( husky.commands[i].hasOwnProperty('el') ) {
+        continue;
+      }
 
       husky.commands[i].el = document.createElement('li');
 
@@ -211,6 +179,18 @@ var husky = function() {
       husky.cmd.list.appendChild( husky.commands[i].el );
 
     }
+  }
+
+  husky.setupCmd = function() {
+
+    husky.cmd = {
+      active: false,
+      el: document.getElementById('cmd'),
+      inpt: document.getElementById('cmd-input'),
+      list: document.getElementById('cmd-list')
+    };
+
+    var t, l, hooke;
 
     //Hotkeys.
     window.addEventListener('keydown', function(e){
@@ -413,6 +393,13 @@ var husky = function() {
 
   };
 
+  husky.flagHasChanged = function( i ) {
+    if ( husky.buffers[i].hasChanged === false ) {
+      husky.buffers[i].hasChanged = true;
+      husky.bufferUpdateLabel(i, husky.buffers[i].bfl.innerHTML + " *" );
+    }
+  };
+
   husky.createNewBuffer = function( i ) {
 
     var cm, el, tn, ct, bfl, sl;
@@ -435,6 +422,7 @@ var husky = function() {
     //Hooks.
     cm.on('change',function(){
       husky.bufferUpdateSize(i);
+      husky.flagHasChanged(i);
     });
 
     var buffer = {
@@ -445,7 +433,8 @@ var husky = function() {
       CodeMirror: cm,
       element: el,
       uri: null,
-      lastSaved: 0
+      lastSaved: 0,
+      hasChanged: false
     };
 
     return buffer;
@@ -488,7 +477,7 @@ var husky = function() {
 
     var i = 1;
 
-    for ( i; i<5; i++ ) {
+    for ( i; i<7; i++ ) {
       husky.buffers[i] = husky.createNewBuffer( i );
     }
 
@@ -500,106 +489,6 @@ var husky = function() {
 
   };
 
-  husky.writeBufferByKey = function( key, callback ) {
-
-    var uri = husky.buffers[key].uri;
-    var buffer = husky.buffers[key].CodeMirror.getValue();
-
-    if (! uri || uri === "" ) {
-      callback('No URI specified. Could not write file.',null);
-      return false;
-    }
-
-    //Try and write the data.
-    var fsDriver = husky.config.activeDriver.fs || null;
-    if (! fsDriver ) {
-      callback('No fs driver registered. Cannot writeBufferByKey.');
-      return false;
-    }
-
-    //Open file buffer.
-    husky.drivers[fsDriver].writeFile( uri, buffer, function(err,data){
-      callback(err,data);
-    } );
-
-
-  };
-
-  husky.changeViewport = function( argv, argc, key ) {
-
-    if (! key ) {
-      key = husky.currentKey
-    }
-
-    var viewportMode;
-
-    if ( argc > 0 ) {
-      viewportMode = argv[0];
-    } else {
-      return false;
-    }
-
-    if (! husky.viewportModes.hasOwnProperty(viewportMode) ) {
-      console.error('Invalid viewport mode specified.');
-      return false;
-    }
-
-    husky.viewportWrapper.className = "editors " + husky.viewportModes[viewportMode].className;
-    husky.currentVisibleBuffers = husky.viewportModes[viewportMode].visibleBuffers;
-
-    //Fix me. Activate a lesser tab if the new mode displays less viewports than
-    //The current focus
-
-    return true;
-
-  };
-
-  husky.writeBuffer = function( argv, argc, key ) {
-
-    if (! key ) {
-      key = husky.currentKey
-    }
-
-    var uri = null;
-    var callback;
-
-    if ( argc > 0 ) {
-      uri = argv[0];
-      if (! isNaN(uri) ) {
-        key = uri;
-      } else {
-        if ( uri && uri !== "" ) {
-          husky.buffers[husky.currentKey].uri = uri;
-          husky.bufferUpdateLabel( husky.currentKey, uri );
-        }
-      }
-    }
-
-    var callback = function(error,data) {
-      if ( error ) {
-        console.error(error);
-        return false;
-      }
-
-    };
-
-    husky.writeBufferByKey( key, callback );
-
-    return true;
-
-  };
-
-  husky.writeAllBuffers = function( argv, argc ) {
-
-    var i = 1, max = husky.currentVisibleBuffers;
-
-    for ( i; i<=max; i++ ) {
-      husky.writeBuffer( [], 1, i );
-    }
-
-    return true;
-
-  };
 
   husky.clearBuffer = function( key ) {
 
@@ -610,167 +499,9 @@ var husky = function() {
 
   };
 
-  husky.fetchBufferByUri = function(uri, callback) {
+  husky.registerCommand = function( cmd ) {
 
-    var fsDriver = husky.config.activeDriver.fs || null;
-    if (! fsDriver ) {
-      console.error( 'No fs driver registered. Cannot fetchBufferByUri.' );
-      callback();
-      return false;
-    }
-
-    //Open file buffer.
-    husky.drivers[fsDriver].readFile( uri, function(err,data){
-      callback(err,data);
-    } );
-
-
-  };
-
-  husky.newBufferCmd = function( argv, argc ) {
-
-    var key = husky.currentKey;
-    var uri = null, ccb = "", callback;
-
-    //Save current buffer first?
-
-    if ( argc > 0 ) {
-      //Viewport number.
-      key = argv[0];
-      if ( key > husky.currentVisibleBuffers ) {
-        key = husky.currentVisibleBuffers;
-      }
-      if ( key < 1 ) {
-        key = 1;
-      }
-      if (! husky.buffers.hasOwnProperty(key) ) {
-        key = husky.currentKey;
-      }
-    }
-
-    if ( argc > 1 ) {
-      uri = argv[1];
-    }
-
-    callback = function( err, data ) {
-      if (! data || err ) {
-        data = "";
-      }
-
-      //Set the buffer data.
-      husky.buffers[key].CodeMirror.getDoc().setValue( data );
-      husky.bufferUpdateLabel(key,uri);
-      husky.bufferUpdateSize(key);
-    };
-
-    husky.clearBuffer( key );
-    husky.buffers[key].uri = uri;
-    husky.currentKey = key;
-    husky.autoSetMode(key);
-
-    if ( uri !== null ) {
-      husky.fetchBufferByUri( uri, callback );
-    } else {
-      callback();
-    }
-
-    return true;
-
-  };
-
-  husky.openFileToBuffer = function( argv, argc ) {
-
-    var argvS = [];
-
-    if ( argc < 1 ) {
-      return true;
-    }
-
-    if ( argc < 2 ) {
-      argv[1] = husky.currentKey;
-    }
-
-    argvS[0] = argv[1];
-    argvS[1] = argv[0];
-
-    husky.newBufferCmd( argvS, 2 )
-
-    return true;
-
-  };
-
-  husky.suggestFileByArgs = function(vl, argc, argv) {
-
-    var uri = argv[0] || "", sgs = husky.cmdSuggestion, margs;
-
-    //Try and write the data.
-    var fsDriver = husky.config.activeDriver.fs || null;
-    if (! fsDriver ) {
-      callback('No fs driver registered. Cannot suggestFileByArgs.');
-      return false;
-    }
-
-    //Open file buffer.
-    husky.drivers[fsDriver].getListOfSuggestions( uri, function(err,suggestions){
-      if ( err ) {
-        //Ensure we empty the suggestion.
-        husky.clearSuggestions();
-        return false;
-      }
-
-      margs = vl.split(" ");
-      if ( margs.length < 2 ) {
-        sgs.value = "";
-        sgs.style.display = "none";
-        return false;
-      }
-
-      sgs.value = margs[0] + ' ' + suggestions[0].suggestion;
-      sgs.style.display = "block";
-    });
-
-  };
-
-  husky.registerCommands = function() {
-
-    husky.commands.push({
-      name: "Write buffer",
-      c: "w [file] || [viewport]",
-      s: /^w\s?.*$/g,
-      d: "Write the currently open buffer to disk",
-      fn: husky.writeBuffer
-    });
-    husky.commands.push({
-      name: "Write all buffers",
-      c: "sw",
-      s: /sw/g,
-      d: "Write all open buffers to disk",
-      fn: husky.writeAllBuffers
-    });
-    husky.commands.push({
-      name: 'New buffer',
-      c: 'n [viewport] [file]',
-      s: /^n\s?.*$/g,
-      d: 'Creates a new buffer',
-      fn: husky.newBufferCmd
-    });
-    husky.commands.push({
-      name: 'Open buffer',
-      c: 'o file [viewport]',
-      s: /^o\s?.*$/g,
-      d: 'Opens a file into a new buffer',
-      fn: husky.openFileToBuffer,
-      suggestion: function(vl,argc,argv) {
-        husky.suggestFileByArgs(vl,argc,argv);
-      }
-    });
-    husky.commands.push({
-      name: 'Viewport layout',
-      c: 'v [viewtype]',
-      s: /^v\s?.*$/g,
-      d: 'Changes the viewport layout',
-      fn: husky.changeViewport
-    });
+    husky.commands.push(cmd);
 
   };
 
@@ -778,10 +509,8 @@ var husky = function() {
 
     husky.createBuffers();
     husky.createHooks();
-    husky.registerCommands();
     husky.setupCmd();
     husky.focusEditor();
-
 
   };
 
