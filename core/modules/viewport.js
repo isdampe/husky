@@ -75,6 +75,12 @@ var viewport = function( husky ) {
 
   };
 
+  viewportm.swapBuffers = function( argv, argc ) {
+
+    console.log(argv);
+
+  };
+
 
   //Executes upon registration from husky core callback.
   viewportm.init = function() {
@@ -83,9 +89,16 @@ var viewport = function( husky ) {
     husky.commands.push({
       name: 'Viewport layout',
       c: 'v [viewtype]',
-      s: /^v\s?.*$/g,
+      s: /(v|v\s.*)$/g,
       d: 'Changes the viewport layout',
       fn: viewportm.changeViewport
+    });
+    husky.commands.push({
+      name: 'vs',
+      c: 'vs [src (int)] [dest (int)]',
+      s: /(vs|vs\s.*)$/g,
+      d: 'Swap the position of two buffers',
+      fn: viewportm.swapBuffers
     });
 
     //Reinit cmd.

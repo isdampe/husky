@@ -14,3 +14,5 @@ nw
 libffmpegsumo.so
 nw.pak
 nwjc
+nwjs.app/*
+.DS_Store

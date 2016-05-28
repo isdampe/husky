@@ -1,3 +1,7 @@
+@mixin fontMono() {
+	font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+}
+
 * {
 	box-sizing: border-box;
 }
@@ -6,7 +10,7 @@ body {
 	margin: 0;
 	background: #0c0c0c;
 	color: #aaa;
-	font-family: monospace;
+	@include fontMono();
 }
 
 .cmd {
@@ -63,7 +67,7 @@ body {
 
     input {
 			width: 100%;
-      font-family: monospace;
+      @include fontMono();
       height: 35px;
       background: #222;
       padding: 0 10px;
@@ -109,6 +113,7 @@ body {
 		height: 100%;
 		border-bottom: 20px solid transparent;
 		font-size: 12px;
+		@include fontMono();
 	}
 
 	nav {
