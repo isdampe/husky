@@ -7,10 +7,6 @@ var dragdrop = function( husky ) {
     var el = document.getElementById("vp" + i);
     el.classList.add("hover");
 
-    window.setTimeout(function(){
-      dragdropm.dragLeave(i);
-    },1000);
-
   };
 
   dragdropm.dragLeave = function(i) {
@@ -56,11 +52,17 @@ var dragdrop = function( husky ) {
     for ( var i=1; i<7; i++ ) {
       (function(i){
 
-        document.getElementById("vp" + i).addEventListener("dragover", function(e){
+        var el = document.getElementById("vp" + i);
+
+        el.addEventListener("dragover", function(e){
           dragdropm.dragOver(e,i);
         }, false);
 
-        document.getElementById("vp" + i).addEventListener("drop", function(e){
+        el.addEventListener("dragleave", function(e){
+          dragdropm.dragLeave(i);
+        }, false);
+
+        el.addEventListener("drop", function(e){
           dragdropm.drop(e,i);
         }, false);
 
