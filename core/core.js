@@ -415,6 +415,7 @@ var husky = function() {
       theme: husky.config.CodeMirror.theme,
       mode: "text",
       foldGutter: true,
+      dragDrop: false,
       gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
       autoCloseBrackets: true
     });

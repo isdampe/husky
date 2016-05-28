@@ -130,9 +130,22 @@ body {
 		color: #fff;
 		font-size: 11px;
 	}
+
+	.drop {
+		display: none;
+		opacity: 0;
+	}
 }
 .active {
 	opacity: 1;
+}
+
+.hover {
+	position: relative;
+
+	nav {
+		background: rgba(63,63,191,0.75);
+	}
 }
 
 //Dual column mode.
@@ -303,4 +316,14 @@ body {
 }
 ::-webkit-scrollbar-corner {
   background: transparent;
+}
+
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
 }
