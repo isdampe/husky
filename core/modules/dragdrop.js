@@ -36,13 +36,9 @@ var dragdrop = function( husky ) {
   //Executes upon registration from husky core callback.
   dragdropm.init = function() {
 
-    var nwjsApp = ( typeof require !== 'undefined' ) ? true : false;
-
-    if ( nwjsApp ) {
-      //Override default nwjs drop behaviour.
-      window.ondragover = function(e) { e.preventDefault(); return false };
-      window.ondrop = function(e) { e.preventDefault(); return false };
-    }
+    //Override browser default behaviour.
+    window.ondragover = function(e) { e.preventDefault(); return false };
+    window.ondrop = function(e) { e.preventDefault(); return false };
 
     if (! window.File || ! window.FileList || ! window.FileReader) {
       console.error("File drag and drop not supported in dragdrop.js");

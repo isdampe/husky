@@ -46,7 +46,7 @@ var viewport = function( husky ) {
   viewportm.changeViewport = function( argv, argc, key ) {
 
     if (! key ) {
-      key = husky.currentKey
+      key = husky.currentKey;
     }
 
     var viewportMode;
@@ -70,6 +70,30 @@ var viewport = function( husky ) {
         husky.switchFocus( husky.currentVisibleBuffers );
       },1);
     }
+
+    return true;
+
+  };
+
+  viewportm.setMode = function( argv, argc ) {
+
+    var cmMode, key;
+
+    if ( argc > 0 ) {
+      cmMode = argv[0];
+    } else {
+      return true;
+    }
+
+    if ( argc > 1 ) {
+      key = argv[1] || husky.currentKey;
+    } else {
+      key = husky.currentKey;
+    }
+
+    var cm = husky.buffers[key].CodeMirror;
+    cm.setOption("mode", cmMode);
+    CodeMirror.autoLoadMode(cm, cmMode);
 
     return true;
 
@@ -99,6 +123,13 @@ var viewport = function( husky ) {
       s: /(vs|vs\s.*)$/g,
       d: 'Swap the position of two buffers',
       fn: viewportm.swapBuffers
+    });
+    husky.commands.push({
+      name: "Mode set",
+      c: 'm [mode] [viewport]',
+      s: /(m|m\s.*)$/g,
+      d: 'Set the mode of a viewport',
+      fn: viewportm.setMode
     });
 
     //Reinit cmd.
