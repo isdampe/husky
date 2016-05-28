@@ -204,14 +204,14 @@ var io = function( husky ) {
     husky.commands.push({
       name: "Write buffer",
       c: "w [file] || [viewport]",
-      s: /^w\s?.*$/g,
+      s: /(w|w\s.*)$/g,
       d: "Write the currently open buffer to disk",
       fn: iom.writeBuffer
     });
     husky.commands.push({
       name: "Write all buffers",
-      c: "sw",
-      s: /sw/g,
+      c: "wa",
+      s: /wa$/g,
       d: "Write all open buffers to disk",
       fn: iom.writeAllBuffers
     });

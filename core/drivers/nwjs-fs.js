@@ -85,6 +85,10 @@ var nwjs = function( husky ) {
     fs.readdir(path,function(err,files){
 
       //Filter the results.
+      if (! files.hasOwnProperty(length) ) {
+        callback(true,null);
+        return false;
+      }
       var i = 0, max = files.length || 0, results = [];
       if ( max < 1 ) {
         callback(true,null);

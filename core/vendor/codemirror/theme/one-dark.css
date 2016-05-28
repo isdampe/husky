@@ -33,7 +33,7 @@ body .cm-s-one-dark .CodeMirror-linenumber {
 }
 
 body .cm-s-one-dark .CodeMirror-cursor {
-  border-left: 1px solid #528BFF;
+  border-left: 2px solid #528BFF;
 }
 
 body .cm-s-one-dark span.cm-comment {

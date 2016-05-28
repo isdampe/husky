@@ -94,7 +94,7 @@ var viewport = function( husky ) {
       fn: viewportm.changeViewport
     });
     husky.commands.push({
-      name: 'vs',
+      name: 'Viewport swap',
       c: 'vs [src (int)] [dest (int)]',
       s: /(vs|vs\s.*)$/g,
       d: 'Swap the position of two buffers',
