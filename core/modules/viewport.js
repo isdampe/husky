@@ -101,7 +101,46 @@ var viewport = function( husky ) {
 
   viewportm.swapBuffers = function( argv, argc ) {
 
-    console.log(argv);
+    var key1, key, doc1, doc2;
+
+    //There needs to be at least one key to swap with.
+    if ( argc < 1 ) {
+      return true;
+    }
+
+    //Assume we are swapping current active viewport if two aren't specified.
+    if ( argc < 2 ) {
+      key1 = husky.currentKey;
+      key2 = argv[0];
+    } else {
+      key1 = argv[0];
+      key2 = argv[1];
+    }
+
+    if ( key1 == "" || key2 == "" || key1 < 0 || key1 > 6 || key2 < 0 || key2 > 6 || key1 === key2 ) {
+      return true;
+    }
+
+    doc1 = {
+      doc: husky.viewports[key1].CodeMirror.getDoc().copy(),
+      history: husky.viewports[key1].CodeMirror.getDoc().getHistory(),
+      cursor: husky.viewports[key1].CodeMirror.getDoc().getCursor()
+    };
+    doc2 = {
+      doc: husky.viewports[key2].CodeMirror.getDoc().copy(),
+      history: husky.viewports[key2].CodeMirror.getDoc().getHistory(),
+      cursor: husky.viewports[key2].CodeMirror.getDoc().getCursor()
+    };
+
+    husky.viewports[key1].CodeMirror.swapDoc(doc2.doc);
+    husky.viewports[key1].CodeMirror.getDoc().setHistory(doc2.history);
+    husky.viewports[key1].CodeMirror.getDoc().setCursor(doc2.cursor);
+
+    husky.viewports[key2].CodeMirror.swapDoc(doc1.doc);
+    husky.viewports[key2].CodeMirror.getDoc().setHistory(doc1.history);
+    husky.viewports[key2].CodeMirror.getDoc().setCursor(doc1.cursor);
+
+    return true;
 
   };
 
