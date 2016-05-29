@@ -124,21 +124,30 @@ var viewport = function( husky ) {
     doc1 = {
       doc: husky.viewports[key1].CodeMirror.getDoc().copy(),
       history: husky.viewports[key1].CodeMirror.getDoc().getHistory(),
-      cursor: husky.viewports[key1].CodeMirror.getDoc().getCursor()
+      cursor: husky.viewports[key1].CodeMirror.getDoc().getCursor(),
+      uri: husky.viewports[key1].uri
     };
     doc2 = {
       doc: husky.viewports[key2].CodeMirror.getDoc().copy(),
       history: husky.viewports[key2].CodeMirror.getDoc().getHistory(),
-      cursor: husky.viewports[key2].CodeMirror.getDoc().getCursor()
+      cursor: husky.viewports[key2].CodeMirror.getDoc().getCursor(),
+      uri: husky.viewports[key2].uri
     };
 
     husky.viewports[key1].CodeMirror.swapDoc(doc2.doc);
     husky.viewports[key1].CodeMirror.getDoc().setHistory(doc2.history);
     husky.viewports[key1].CodeMirror.getDoc().setCursor(doc2.cursor);
+    husky.viewports[key1].uri = doc2.uri;
 
     husky.viewports[key2].CodeMirror.swapDoc(doc1.doc);
     husky.viewports[key2].CodeMirror.getDoc().setHistory(doc1.history);
     husky.viewports[key2].CodeMirror.getDoc().setCursor(doc1.cursor);
+    husky.viewports[key2].uri = doc1.uri;
+
+    husky.bufferUpdateSize(key1,doc2.uri);
+    husky.bufferUpdateLabel(key1,doc2.uri);
+    husky.bufferUpdateSize(key2,doc1.uri);
+    husky.bufferUpdateLabel(key2,doc1.uri);
 
     return true;
 
