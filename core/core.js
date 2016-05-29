@@ -56,6 +56,12 @@ var husky = function() {
 
   };
 
+  husky.setKeyMap = function( key, keyMap ) {
+
+    huskyCore.buffers[key].CodeMirror.setOption("keyMap","vim");
+
+  };
+
   husky.switchFocus = function( key ) {
 
     var buffer = husky.buffers[key], els, i = 0, max;

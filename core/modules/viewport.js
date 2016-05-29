@@ -127,7 +127,7 @@ var viewport = function( husky ) {
     husky.commands.push({
       name: "Mode set",
       c: 'm [mode] [viewport]',
-      s: /(m|m\s.*)$/g,
+      s: /(^m|^m\s.*)$/g,
       d: 'Set the mode of a viewport',
       fn: viewportm.setMode
     });
