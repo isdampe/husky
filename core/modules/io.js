@@ -87,7 +87,7 @@ var io = function( husky ) {
       if ( key < 1 ) {
         key = 1;
       }
-      if (! husky.buffers.hasOwnProperty(key) ) {
+      if (! husky.viewports.hasOwnProperty(key) ) {
         key = husky.currentKey;
       }
     }
@@ -102,16 +102,26 @@ var io = function( husky ) {
       }
 
       //Set the buffer data.
-      husky.buffers[key].CodeMirror.getDoc().setValue( data );
+      husky.viewports[key].CodeMirror.getDoc().setValue( data );
+      husky.viewports[key].CodeMirror.getDoc().clearHistory();
       husky.bufferUpdateLabel(key,uri);
       husky.bufferUpdateSize(key);
-      husky.buffers[key].hasChanged = false;
+      husky.viewports[key].hasChanged = false;
+      husky.updateBuffer(key);
     };
 
     husky.clearBuffer( key );
-    husky.buffers[key].uri = uri;
+    husky.viewports[key].uri = uri;
     husky.currentKey = key;
     husky.autoSetMode(key);
+
+    if ( husky.buffers.hasOwnProperty(uri) ) {
+      husky.preloadExistingBuffer(key,uri);
+      husky.bufferUpdateLabel(key,uri);
+      husky.bufferUpdateSize(key);
+      husky.viewports[key].hasChanged = false;
+      return true;
+    }
 
     if ( uri !== null ) {
       iom.fetchBufferByUri( uri, callback );
@@ -137,8 +147,8 @@ var io = function( husky ) {
 
   iom.writeBufferByKey = function( key, callback ) {
 
-    var uri = husky.buffers[key].uri;
-    var buffer = husky.buffers[key].CodeMirror.getValue();
+    var uri = husky.viewports[key].uri;
+    var buffer = husky.viewports[key].CodeMirror.getValue();
 
     if (! uri || uri === "" ) {
       callback('No URI specified. Could not write file.',null);
@@ -174,7 +184,7 @@ var io = function( husky ) {
         key = uri;
       } else {
         if ( uri && uri !== "" ) {
-          husky.buffers[husky.currentKey].uri = uri;
+          husky.viewports[husky.currentKey].uri = uri;
           husky.bufferUpdateLabel( husky.currentKey, uri );
         }
       }
@@ -186,8 +196,8 @@ var io = function( husky ) {
         return false;
       }
 
-      husky.bufferUpdateLabel(key, husky.buffers[key].uri);
-      husky.buffers[key].hasChanged = false;
+      husky.bufferUpdateLabel(key, husky.viewports[key].uri);
+      husky.viewports[key].hasChanged = false;
 
     };
 

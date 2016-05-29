@@ -4,9 +4,10 @@ var husky = function() {
 
   husky.currentKey = 1;
   husky.currentVisibleBuffers = 3;
+  husky.viewports = {};
   husky.buffers = {};
   husky.drivers = {};
-  husky.modules= {};
+  husky.modules = {};
   husky.commandMemory = [];
   husky.lastCommand = null;
   husky.currentCommand = -1;
@@ -58,13 +59,13 @@ var husky = function() {
 
   husky.setKeyMap = function( key, keyMap ) {
 
-    huskyCore.buffers[key].CodeMirror.setOption("keyMap","vim");
+    huskyCore.viewports[key].CodeMirror.setOption("keyMap","vim");
 
   };
 
   husky.switchFocus = function( key ) {
 
-    var buffer = husky.buffers[key], els, i = 0, max;
+    var buffer = husky.viewports[key], els, i = 0, max;
 
     //Remove all.
     els = document.querySelectorAll('.editors .active');
@@ -75,8 +76,8 @@ var husky = function() {
       }
     }
 
-    husky.buffers[key].CodeMirror.focus();
-    husky.buffers[key].ct.className = "viewport active";
+    husky.viewports[key].CodeMirror.focus();
+    husky.viewports[key].ct.className = "viewport active";
     husky.currentKey = key;
 
   };
@@ -85,11 +86,11 @@ var husky = function() {
 
     var key;
 
-    for ( key in husky.buffers ) {
+    for ( key in husky.viewports ) {
 
       //On focus.
       (function(key){
-        husky.buffers[key].CodeMirror.on('focus', function(e){
+        husky.viewports[key].CodeMirror.on('focus', function(e){
           husky.switchFocus( key );
         });
       })(key);
@@ -382,27 +383,27 @@ var husky = function() {
       label = "/dev/null";
     }
 
-    if ( husky.buffers[i].bfl.innerHTML !== label ) {
-      husky.buffers[i].bfl.innerHTML = label;
+    if ( husky.viewports[i].bfl.innerHTML !== label ) {
+      husky.viewports[i].bfl.innerHTML = label;
     }
 
   };
 
   husky.bufferUpdateSize = function( i ) {
 
-    var size = husky.buffers[i].CodeMirror.getValue().length;
+    var size = husky.viewports[i].CodeMirror.getValue().length;
 
     size = size + ' bytes';
-    if ( husky.buffers[i].sl.innerHTML !== size ) {
-      husky.buffers[i].sl.innerHTML = size;
+    if ( husky.viewports[i].sl.innerHTML !== size ) {
+      husky.viewports[i].sl.innerHTML = size;
     }
 
   };
 
   husky.flagHasChanged = function( i ) {
-    if ( husky.buffers[i].hasChanged === false ) {
-      husky.buffers[i].hasChanged = true;
-      husky.bufferUpdateLabel(i, husky.buffers[i].bfl.innerHTML + " *" );
+    if ( husky.viewports[i].hasChanged === false ) {
+      husky.viewports[i].hasChanged = true;
+      husky.bufferUpdateLabel(i, husky.viewports[i].bfl.innerHTML + " *" );
     }
   };
 
@@ -450,9 +451,9 @@ var husky = function() {
 
   husky.autoSetMode = function( i ) {
 
-    var cm = husky.buffers[i].CodeMirror;
+    var cm = husky.viewports[i].CodeMirror;
 
-    var val = husky.buffers[i].uri, m, mode, spec;
+    var val = husky.viewports[i].uri, m, mode, spec;
 
     if (m = /.+\.([^.]+)$/.exec(val)) {
       var info = CodeMirror.findModeByExtension(m[1]);
@@ -485,24 +486,46 @@ var husky = function() {
     var i = 1;
 
     for ( i; i<7; i++ ) {
-      husky.buffers[i] = husky.createNewBuffer( i );
+      husky.viewports[i] = husky.createNewBuffer( i );
     }
 
   };
 
   husky.focusEditor = function() {
 
-    husky.buffers[husky.currentKey].CodeMirror.focus();
+    husky.viewports[husky.currentKey].CodeMirror.focus();
 
   };
 
+  husky.updateBuffer = function( key ) {
+
+    var uri = husky.viewports[key].uri;
+
+    husky.buffers[uri] = {
+      doc: husky.viewports[key].CodeMirror.getDoc().copy(),
+      history: husky.viewports[key].CodeMirror.getDoc().getHistory(),
+      cursor: husky.viewports[key].CodeMirror.getDoc().getCursor()
+    };
+
+  }
+
+  husky.preloadExistingBuffer = function (key, uri) {
+
+    husky.viewports[key].CodeMirror.swapDoc( husky.buffers[uri].doc );
+    husky.viewports[key].CodeMirror.getDoc().setHistory( husky.buffers[uri].history );
+    husky.viewports[key].CodeMirror.getDoc().setCursor( husky.buffers[uri].cursor );
+
+  };
 
   husky.clearBuffer = function( key ) {
 
+    //Insert the latest doc into buffer.
+    husky.updateBuffer(key);
+
     //Should I save the buffer first?
-    husky.buffers[key].CodeMirror.getDoc().setValue('');
-    husky.buffers[key].uri = null;
-    husky.buffers[key].lastSaved = 0;
+    husky.viewports[key].CodeMirror.getDoc().setValue('');
+    husky.viewports[key].uri = null;
+    husky.viewports[key].lastSaved = 0;
 
   };
 

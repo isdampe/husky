@@ -91,7 +91,7 @@ var viewport = function( husky ) {
       key = husky.currentKey;
     }
 
-    var cm = husky.buffers[key].CodeMirror;
+    var cm = husky.viewports[key].CodeMirror;
     cm.setOption("mode", cmMode);
     CodeMirror.autoLoadMode(cm, cmMode);
 
