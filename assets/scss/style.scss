@@ -13,6 +13,10 @@ body {
 	@include fontMono();
 }
 
+textarea {
+	background: #0c0c0c;
+}
+
 .cmd {
   position: fixed;
   left: 0;
@@ -107,7 +111,7 @@ body {
 	height: 100%;
 	position: relative;
 	background: rgba(0,0,0,0.5);
-	opacity: 0.85;
+	//opacity: 0.85;
 
 	.CodeMirror {
 		height: 100%;
