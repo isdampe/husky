@@ -175,6 +175,10 @@ var io = function( husky ) {
       key = husky.currentKey
     }
 
+    if (! husky.viewports[key].hasChanged ) {
+      return true;
+    }
+
     var uri = null;
     var callback;
 

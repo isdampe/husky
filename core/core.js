@@ -466,10 +466,10 @@ var husky = function() {
         "222": "quote"
     };
 
-    var __Cursor = cm.getDoc().getCursor();
-    var __Token = cm.getTokenAt(__Cursor);
+    var cursor = cm.getDoc().getCursor();
+    var token = cm.getTokenAt(cursor);
 
-    if (!cm.state.completionActive && !ExcludedIntelliSenseTriggerKeys[(event.keyCode || event.which).toString()] && (__Token.type == "tag" || __Token.string == " " || __Token.string == "<" || __Token.string =="(" || __Token.string == "/")) {
+    if (!cm.state.completionActive && !ExcludedIntelliSenseTriggerKeys[(event.keyCode || event.which).toString()] && (token.type == "tag" || token.string == " " || token.string == "<" || token.string =="(" || token.string == "/")) {
       CodeMirror.commands.autocomplete(cm, null, { completeSingle: false });
     }
 
@@ -544,9 +544,23 @@ var husky = function() {
       cm.setOption("mode", {"name": mode, globalVars: true});
       CodeMirror.autoLoadMode(cm, mode);
     } else {
-      console.error('Could not find a mode');
+      husky.error('Could not find a mode');
     }
 
+
+  };
+
+  husky.error = function(msg, level) {
+
+    if ( typeof level === 'undefined' ) {
+      level = 1;
+    }
+
+    console.error(msg);
+
+    if ( level == 10 ) {
+        alert(msg);
+    }
 
   };
 
