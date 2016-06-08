@@ -3,25 +3,6 @@ var huskyfs = function( husky ) {
   var fs;
   var hfs = this;
 
-
-  //Executes upon registration from husky core callback.
-  hfs.init = function() {
-
-    //Turn myself on if there is no default driver.
-    if ( husky.config.activeDriver.fs === null ) {
-      husky.config.activeDriver.fs = 'huskyfs';
-    }
-
-    //Set default server.
-    husky.config.huskyfs = {
-      server: "http://localhost:8291"
-    };
-
-    //To do.
-    //Add a command to set the server manually.
-
-  };
-
   /*
    * Parses a husky-fs URI
    * Input: /tmp/test.c@http://localhost:8001
@@ -68,7 +49,7 @@ var huskyfs = function( husky ) {
 
       callback(null,res.buffer);
 
-    });
+    }, husky.config.huskyfs.credentials);
 
   };
 
@@ -85,7 +66,9 @@ var huskyfs = function( husky ) {
     //Set post data.
     post_data = {
       uri: uri,
-      buffer: buffer
+      buffer: buffer,
+      user: husky.config.huskyfs.credentials.user,
+      pass: husky.config.huskyfs.credentials.pass
     };
 
     hfs.sendRequest(post_uri,function(err,res,req){
@@ -141,7 +124,7 @@ var huskyfs = function( husky ) {
 
       for ( i; i<max; i++ ) {
         if ( files[i].name.match( search ) ) {
-          console.log('test');
+
           var arr = {
             suggestion: path + files[i].name,
             match: hfs.similarity(files[i].name, search)
@@ -160,7 +143,7 @@ var huskyfs = function( husky ) {
         callback(false,results);
       }
 
-    });
+    }, husky.config.huskyfs.credentials);
 
   };
 
@@ -203,6 +186,65 @@ var huskyfs = function( husky ) {
         costs[s2.length] = lastValue;
     }
     return costs[s2.length];
+  };
+
+  hfs.setAuth = function( argv, argc, key ) {
+
+    var cre, srv = false;
+
+    if ( argc < 1 ) {
+      return true;
+    }
+
+    cre = argv[0];
+    if ( argc > 1 ) {
+      srv = argv[1];
+    }
+
+    if ( cre !== "" ) {
+      cre = cre.split(":");
+      if ( cre.length < 2 ) {
+        return true;
+      }
+      husky.config.huskyfs.credentials.user = cre[0];
+      husky.config.huskyfs.credentials.pass = cre[1];
+    }
+
+    if ( srv !== false && srv !== "" ) {
+      husky.config.huskyfs.server = srv;
+    }
+
+    return true;
+
+  };
+
+  //Executes upon registration from husky core callback.
+  hfs.init = function() {
+
+    //Turn myself on if there is no default driver.
+    if ( husky.config.activeDriver.fs === null ) {
+      husky.config.activeDriver.fs = 'huskyfs';
+    }
+
+    //Set default server.
+    husky.config.huskyfs = {
+      server: "http://localhost:8291",
+      credentials: {
+        user: "user",
+        pass: "pass"
+      }
+    };
+
+    //To do.
+    //Add a command to set the server manually.
+    husky.commands.push({
+      name: "Authenticate",
+      c: 'au username:password [http://server:80]',
+      s: /(^au|^au\s.*)$/g,
+      d: 'Set the basic auth for remote access',
+      fn: hfs.setAuth
+    });
+
   };
 
   /*
