@@ -1,6 +1,7 @@
 body .cm-s-one-dark.CodeMirror {
   background: #282C34;
   color: #ABB2BF;
+  line-height: 1.4em;
 }
 
 body .cm-s-one-dark div.CodeMirror-selected {

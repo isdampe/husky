@@ -59,7 +59,7 @@ var io = function( husky ) {
 
     var fsDriver = husky.config.activeDriver.fs || null;
     if (! fsDriver ) {
-      console.error( 'No fs driver registered. Cannot fetchBufferByUri.' );
+      husky.error( 'No fs driver registered. Cannot fetchBufferByUri.', 1 );
       callback();
       return false;
     }
@@ -196,7 +196,7 @@ var io = function( husky ) {
 
     var callback = function(error,data) {
       if ( error ) {
-        console.error(error);
+        husky.log(error,1);
         return false;
       }
 

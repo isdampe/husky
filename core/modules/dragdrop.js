@@ -41,7 +41,7 @@ var dragdrop = function( husky ) {
     window.ondrop = function(e) { e.preventDefault(); return false };
 
     if (! window.File || ! window.FileList || ! window.FileReader) {
-      console.error("File drag and drop not supported in dragdrop.js");
+      husky.error("File drag and drop not supported in dragdrop.js",1);
       return false;
     }
 

@@ -10,7 +10,7 @@ var nwjs = function( husky ) {
     var nwjsApp = ( typeof require !== 'undefined' ) ? true : false;
 
     if (! nwjsApp ) {
-      console.error("Not running inside nw.js. Deregistering nwjs-fs.js");
+      husky.log("Not running inside nw.js. Deregistering nwjs-fs.js",1);
       husky.deRegisterDriver('nwjsfs');
       delete nwg;
       return false;
@@ -30,14 +30,14 @@ var nwjs = function( husky ) {
     //Can we read file?
     fs.access(uri, fs.R_OK | fs.W_OK, function(err) {
       if ( err ) {
-        console.error('Error accessing ' + uri + 'File doesnt exit or not permitted.');
+        husky.log('Error accessing ' + uri + 'File doesnt exit or not permitted.',1);
         callback(true,null);
         return false;
       }
 
       fs.readFile(uri,{encoding: "utf8"},function(err,data){
         if ( err ) {
-          console.error('Could not read ' + uri);
+          husky.log('Could not read ' + uri,1);
           callback(true,data);
           return false;
         }

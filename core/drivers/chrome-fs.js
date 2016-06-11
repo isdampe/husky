@@ -9,7 +9,7 @@ var chromefs = function( husky ) {
     var chromeWebApp = (typeof chrome.fileSystem !== 'undefined' ) ? true : false;
 
     if (! chromeWebApp ) {
-      console.error("Not running inside a chrome web app. Deregistering chrome-fs.js");
+      husky.error("Not running inside a chrome web app. Deregistering chrome-fs.js",1);
       husky.deRegisterDriver('chromefs');
       delete cfs;
       return false;
@@ -24,7 +24,7 @@ var chromefs = function( husky ) {
 
   cfs.readFile = function( uri, callback ) {
 
-    console.log("Trying to read " + uri);
+    husky.log("Trying to read " + uri);
     callback(null,"Hello world");
 
   };
