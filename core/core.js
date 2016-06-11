@@ -11,7 +11,7 @@ var husky = function() {
   husky.commandMemory = [];
   husky.lastCommand = null;
   husky.currentCommand = -1;
-  husky.hooke = hooke = (window.chrome && chrome.runtime && chrome.runtime.id) ? 'keydown' : 'keyup';
+  husky.hooke = (window.chrome && chrome.runtime && chrome.runtime.id) ? 'keydown' : 'keyup';
 
   husky.config = {
     'autocomplete': true,
