@@ -206,16 +206,18 @@ var husky = function() {
       console.error(msg);
     }
 
+    husky.console.el.scrollTop = husky.console.el.scrollHeight;
+
   };
 
   husky.toggleConsole = function() {
 
     if (! husky.console.wr.classList.contains('console-visible') ) {
       husky.console.wr.classList.add('console-visible');
-      husky.console.el.focus();
+      husky.console.in.focus();
     } else {
       husky.console.wr.classList.remove('console-visible');
-      husky.console.el.blur();
+      husky.console.in.blur();
       husky.focusEditor();
     }
 
@@ -226,7 +228,8 @@ var husky = function() {
     husky.console = {
       active: false,
       wr: document.getElementById('console-wrapper'),
-      el: document.getElementById('console')
+      el: document.getElementById('console'),
+      in: document.getElementById('console-input')
     };
 
     //Hotkeys.
