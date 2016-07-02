@@ -7,7 +7,7 @@
   "window": {
     "title": "Husky",
     "icon": "assets/media/logo-128.png",
-    "toolbar": true,
+    "toolbar": false,
     "frame": true,
     "width": 1280,
     "height": 720,
