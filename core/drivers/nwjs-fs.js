@@ -25,6 +25,44 @@ var nwjs = function( husky ) {
 
   };
 
+  nwg.ls = function( uri, callback ) {
+
+    if ( uri === null ) uri = process.cwd();
+
+    fs.readdir(uri,function(err,files){
+      if ( typeof files === "undefined" ) {
+        callback(true,null);
+        return false;
+      }
+
+      var fl = [], type = null, cwd, stat;
+      for ( var i=0; i<files.length; i++ ) {
+
+        type = null;
+        cwd = uri + "/" + files[i];
+        stat = fs.lstatSync(cwd);
+
+        if ( stat.isFile() ) {
+          type = 'file';
+        } else if ( stat.isDirectory() ) {
+          type = 'directory';
+        }
+
+        if ( type === null ) continue;
+
+        fl.push({
+          uri: cwd,
+          name: files[i],
+          type: type
+        });
+      }
+
+      callback(false,fl);
+
+    });
+
+  };
+
   nwg.readFile = function( uri, callback ) {
 
     //Can we read file?

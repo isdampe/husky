@@ -147,6 +147,16 @@ var husky = function() {
     husky.cmdSuggestion.style.display = "none";
   };
 
+  husky.isBufferOpen = function(uri) {
+
+    if ( husky.buffers.hasOwnProperty(uri) ) {
+      return true;
+    } else {
+      return false;
+    }
+
+  };
+
   husky.swapBuffers = function(step) {
 
     var current = husky.currentKey, max = husky.currentVisibleBuffers;

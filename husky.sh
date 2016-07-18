@@ -1,2 +1,2 @@
 #!/bin/sh
-cd $HUSKY && ./nw > /dev/null 2>/dev/null &
+cd /home/dampe/git/husky && ./nw > /dev/null 2>/dev/null &
