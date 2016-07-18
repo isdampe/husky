@@ -58,7 +58,7 @@ var viewport = function( husky ) {
     }
 
     if (! viewportm.modes.hasOwnProperty(viewportMode) ) {
-      console.error('Invalid viewport mode specified.');
+      husky.error('Invalid viewport mode specified.');
       return true;
     }
 

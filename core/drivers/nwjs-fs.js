@@ -1,27 +1,96 @@
 var nwjs = function( husky ) {
 
   var fs;
-  var nwg = this;
+  var nwg = this, gui;
 
 
   //Executes upon registration from husky core callback.
   nwg.init = function() {
 
     var nwjsApp = ( typeof require !== 'undefined' ) ? true : false;
+    var dwd;
 
     if (! nwjsApp ) {
-      console.error("Not running inside nw.js. Deregistering nwjs-fs.js");
+      husky.log("Not running inside nw.js. Deregistering nwjs-fs.js",1);
       husky.deRegisterDriver('nwjsfs');
       delete nwg;
       return false;
     }
 
+    fs = require('fs');
+
     //Turn myself on if there is no default driver.
     if ( husky.config.activeDriver.fs === null ) {
       husky.config.activeDriver.fs = 'nwjsfs';
+
+      //Set default directory URI.
+      gui = require('nw.gui');
+      if ( typeof gui.App.argv[0] !== 'undefined' ) {
+        dwd = gui.App.argv[0];
+
+        try {
+          var st = fs.lstatSync(dwd);
+        } catch(e) {
+          return true;
+        }
+
+        //Does this directory actually exist? Check me...
+        if ( st.isDirectory() ) {
+          husky.currentDirectory = dwd;
+        } else if ( st.isFile() ) {
+
+          //Nw.js bug:
+          //Passing a file to ./nw tries to execute the file.
+          //This needs a fix in the future.
+          husky.log('Tried to open file but could not due to nwjs bug. See nwg.init().');
+        }
+
+      }
     }
 
-    fs = require('fs');
+  };
+
+  nwg.ls = function( uri, callback ) {
+
+    if ( uri === null ) {
+      if ( husky.currentDirectory === null ) {
+        uri = process.cwd();
+      } else {
+        uri = husky.currentDirectory;
+      }
+    }
+
+    fs.readdir(uri,function(err,files){
+      if ( typeof files === "undefined" ) {
+        callback(true,null);
+        return false;
+      }
+
+      var fl = [], type = null, cwd, stat;
+      for ( var i=0; i<files.length; i++ ) {
+
+        type = null;
+        cwd = uri + "/" + files[i];
+        stat = fs.lstatSync(cwd);
+
+        if ( stat.isFile() ) {
+          type = 'file';
+        } else if ( stat.isDirectory() ) {
+          type = 'directory';
+        }
+
+        if ( type === null ) continue;
+
+        fl.push({
+          uri: cwd,
+          name: files[i],
+          type: type
+        });
+      }
+
+      callback(false,fl);
+
+    });
 
   };
 
@@ -30,14 +99,14 @@ var nwjs = function( husky ) {
     //Can we read file?
     fs.access(uri, fs.R_OK | fs.W_OK, function(err) {
       if ( err ) {
-        console.error('Error accessing ' + uri + 'File doesnt exit or not permitted.');
+        husky.log('Error accessing ' + uri + 'File doesnt exit or not permitted.',1);
         callback(true,null);
         return false;
       }
 
       fs.readFile(uri,{encoding: "utf8"},function(err,data){
         if ( err ) {
-          console.error('Could not read ' + uri);
+          husky.log('Could not read ' + uri,1);
           callback(true,data);
           return false;
         }

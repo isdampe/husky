@@ -30,6 +30,43 @@ var huskyfs = function( husky ) {
 
   };
 
+  hfs.ls = function( uri, callback ) {
+
+    if ( uri === null ) uri = "/home";
+
+    var requestUri = hfs.parseUri( uri + '@' + husky.config.huskyfs.server, 'ls' );
+
+    //Try to read the file.
+
+    hfs.sendRequest(requestUri, function(err,res,req){
+      if ( err || ! res.hasOwnProperty('fileList') ) {
+        husky.error('Error reading file over HTTP stream via husky-fs.');
+        callback(true,null);
+        return false;
+      }
+
+      var fwd;
+
+      var files = [];
+      for ( var i=0; i<res.fileList.length; i++ ) {
+
+        fwd = res.fileList[i].directory;
+        if ( fwd.slice(-1) !== "/" ) fwd = fwd + "/";
+
+        files.push({
+          type: res.fileList[i].type,
+          uri: fwd + res.fileList[i].name,
+          name: res.fileList[i].name
+        });
+      };
+
+
+      callback(null,files);
+
+    }, husky.config.huskyfs.credentials);
+
+  };
+
   hfs.readFile = function( uri, callback ) {
 
     //Get the URL.

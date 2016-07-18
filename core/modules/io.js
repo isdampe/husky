@@ -59,7 +59,7 @@ var io = function( husky ) {
 
     var fsDriver = husky.config.activeDriver.fs || null;
     if (! fsDriver ) {
-      console.error( 'No fs driver registered. Cannot fetchBufferByUri.' );
+      husky.error( 'No fs driver registered. Cannot fetchBufferByUri.', 1 );
       callback();
       return false;
     }
@@ -145,6 +145,24 @@ var io = function( husky ) {
 
   };
 
+  iom.changeWorkingDirectory = function( argv, argc ) {
+
+    if ( argc < 1 ) return true;
+
+    var cwd = argv[0];
+    husky.currentDirectory = cwd;
+
+    husky.log('Changed working directory to ' + cwd);
+
+    //Try to update explorer.
+    if ( typeof husky.modules.explorer.refreshList !== 'undefined' ) {
+      husky.modules.explorer.refreshList();
+    }
+
+    return true;
+
+  };
+
   iom.writeBufferByKey = function( key, callback ) {
 
     var uri = husky.viewports[key].uri;
@@ -196,7 +214,7 @@ var io = function( husky ) {
 
     var callback = function(error,data) {
       if ( error ) {
-        console.error(error);
+        husky.log(error,1);
         return false;
       }
 
@@ -235,6 +253,13 @@ var io = function( husky ) {
       s: /^n\s?.*$/g,
       d: 'Creates a new buffer',
       fn: iom.newBufferCmd
+    });
+    husky.commands.push({
+      name: 'Change working directory',
+      c: 'cd [directory]',
+      s: /^cd\s?.*$/g,
+      d: 'Changes the working directory',
+      fn: iom.changeWorkingDirectory
     });
     husky.commands.push({
       name: 'Open buffer',

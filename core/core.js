@@ -11,6 +11,8 @@ var husky = function() {
   husky.commandMemory = [];
   husky.lastCommand = null;
   husky.currentCommand = -1;
+  husky.currentDirectory = null
+  husky.hooke = (window.chrome && chrome.runtime && chrome.runtime.id) ? 'keydown' : 'keyup';
 
   husky.config = {
     'autocomplete': true,
@@ -23,13 +25,14 @@ var husky = function() {
   };
 
   husky.cmd = {};
+  husky.console = {};
   husky.commands = [];
   husky.cmdSuggestion = document.getElementById('cmd-suggestion');
 
   husky.registerModule = function( guid, obj ) {
 
     if (! husky.modules.hasOwnProperty(guid) ) {
-      console.log("Registered module " + guid);
+      husky.log("Registered module " + guid);
 
       husky.modules[guid] = new obj( husky );
       if ( husky.modules[guid].hasOwnProperty("init") ) {
@@ -42,7 +45,7 @@ var husky = function() {
   husky.registerDriver = function( guid, obj ) {
 
     if (! husky.drivers.hasOwnProperty(guid) ) {
-      console.log("Registered driver " + guid);
+      husky.log("Registered driver " + guid);
 
       husky.drivers[guid] = new obj( husky );
       if ( husky.drivers[guid].hasOwnProperty("init") ) {
@@ -145,6 +148,16 @@ var husky = function() {
     husky.cmdSuggestion.style.display = "none";
   };
 
+  husky.isBufferOpen = function(uri) {
+
+    if ( husky.buffers.hasOwnProperty(uri) ) {
+      return true;
+    } else {
+      return false;
+    }
+
+  };
+
   husky.swapBuffers = function(step) {
 
     var current = husky.currentKey, max = husky.currentVisibleBuffers;
@@ -189,6 +202,71 @@ var husky = function() {
     }
   }
 
+  husky.log = function(msg,lvl) {
+
+    if ( typeof lvl === 'undefined' ) lvl = 0;
+
+    var d, date;
+    d = new Date();
+    date = d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
+
+    if ( lvl < 1 ) {
+      husky.console.el.value = husky.console.el.value + date + ': ' + msg + "\n";
+    } else {
+      husky.console.el.value = husky.console.el.value + date + ': ERR: ' + msg + "\n";
+      console.error(msg);
+    }
+
+    husky.console.el.scrollTop = husky.console.el.scrollHeight;
+
+  };
+
+  husky.toggleConsole = function() {
+
+    if (! husky.console.wr.classList.contains('console-visible') ) {
+
+      //Try to hide the sidebar.
+      if ( typeof husky.modules.explorer.hide !== 'undefined' ) husky.modules.explorer.hide();
+
+      husky.console.wr.classList.add('console-visible');
+      husky.console.in.focus();
+    } else {
+      husky.hideConsole();
+      husky.focusEditor();
+    }
+
+  };
+
+  husky.hideConsole = function() {
+    husky.console.wr.classList.remove('console-visible');
+    husky.console.in.blur();
+  };
+
+  husky.setupConsole = function() {
+
+    husky.console = {
+      active: false,
+      wr: document.getElementById('console-wrapper'),
+      el: document.getElementById('console'),
+      in: document.getElementById('console-input')
+    };
+
+    //Hotkeys.
+    window.addEventListener('keydown', function(e){
+      if ( e.keyCode === 190 && e.ctrlKey === true ) {
+        husky.toggleConsole();
+      }
+    });
+
+    husky.console.wr.addEventListener('keydown', function(e){
+      if ( e.keyCode === 27 ) {
+        husky.toggleConsole();
+      }
+    });
+
+
+  };
+
   husky.setupCmd = function() {
 
     husky.cmd = {
@@ -205,14 +283,10 @@ var husky = function() {
       if ( e.keyCode === 32 && e.ctrlKey === true ) {
         husky.toggleCmd();
       }
-
     });
 
-    //Detect if running as chrome extension, or via another method.
-    hooke = (window.chrome && chrome.runtime && chrome.runtime.id) ? 'keydown' : 'keyup';
-
     //Ctrl+Tab.
-    window.addEventListener(hooke, function(e){
+    window.addEventListener(husky.hooke, function(e){
 
       if ( e.keyCode === 9 && e.ctrlKey === true ) {
 
@@ -556,11 +630,7 @@ var husky = function() {
       level = 1;
     }
 
-    console.error(msg);
-
-    if ( level == 10 ) {
-        alert(msg);
-    }
+    husky.log(msg,1);
 
   };
 
@@ -622,6 +692,7 @@ var husky = function() {
 
     husky.createBuffers();
     husky.createHooks();
+    husky.setupConsole();
     husky.setupCmd();
     husky.focusEditor();
 

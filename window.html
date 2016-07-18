@@ -3,11 +3,17 @@
 <head>
 	<link rel="stylesheet" href="assets/css/style.css">
 	<link rel="stylesheet" href="assets/css/hint.css">
+	<link rel="stylesheet" href="assets/css/explorer.css">
+	<link rel="stylesheet" href="assets/css/octicons.css">
 	<link rel="stylesheet" href="core/vendor/codemirror/lib/codemirror.css">
 	<link rel="stylesheet" href="core/vendor/codemirror/theme/one-dark.css">
 	<link rel="stylesheet" href="core/vendor/codemirror/addon/fold/foldgutter.css">
 </head>
 <body>
+	<div id="console-wrapper" class="console">
+		<textarea readonly id="console"></textarea>
+		<input type="text" id="console-input" />
+	</div>
   <div id="cmd" class="cmd">
     <div class="in">
 			<input type="text" id="cmd-suggestion" value="o /tmp/test/test.c" />
@@ -102,5 +108,6 @@
 	<script src="core/modules/viewport.js"></script>
 	<script src="core/modules/dragdrop.js"></script>
 	<script src="core/modules/vim-mode.js"></script>
+	<script src="core/modules/explorer.js"></script>
 </body>
 </html>
