@@ -10,7 +10,7 @@ var explorer = function( husky ) {
 
     if ( visible === false ) {
       if ( typeof husky.hideConsole !== 'undefined' ) husky.hideConsole();
-      
+
       explorerm.refreshList();
       elWrapper.className = 'explorer-wrapper explorer-wrapper-active';
       visible = true;
@@ -104,8 +104,6 @@ var explorer = function( husky ) {
 
   explorerm.refreshList = function() {
 
-    husky.log('h:' + husky.currentDirectory);
-    husky.log(lastDirectoryUsed);
     if ( husky.currentDirectory !== lastDirectoryUsed ) {
       //Clear the list.
       elList.innerHTML = '';
