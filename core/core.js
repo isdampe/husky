@@ -11,6 +11,7 @@ var husky = function() {
   husky.commandMemory = [];
   husky.lastCommand = null;
   husky.currentCommand = -1;
+  husky.currentDirectory = null
   husky.hooke = (window.chrome && chrome.runtime && chrome.runtime.id) ? 'keydown' : 'keyup';
 
   husky.config = {
@@ -223,14 +224,22 @@ var husky = function() {
   husky.toggleConsole = function() {
 
     if (! husky.console.wr.classList.contains('console-visible') ) {
+
+      //Try to hide the sidebar.
+      if ( typeof husky.modules.explorer.hide !== 'undefined' ) husky.modules.explorer.hide();
+
       husky.console.wr.classList.add('console-visible');
       husky.console.in.focus();
     } else {
-      husky.console.wr.classList.remove('console-visible');
-      husky.console.in.blur();
+      husky.hideConsole();
       husky.focusEditor();
     }
 
+  };
+
+  husky.hideConsole = function() {
+    husky.console.wr.classList.remove('console-visible');
+    husky.console.in.blur();
   };
 
   husky.setupConsole = function() {

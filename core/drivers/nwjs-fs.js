@@ -1,13 +1,14 @@
 var nwjs = function( husky ) {
 
   var fs;
-  var nwg = this;
+  var nwg = this, gui;
 
 
   //Executes upon registration from husky core callback.
   nwg.init = function() {
 
     var nwjsApp = ( typeof require !== 'undefined' ) ? true : false;
+    var dwd;
 
     if (! nwjsApp ) {
       husky.log("Not running inside nw.js. Deregistering nwjs-fs.js",1);
@@ -16,18 +17,48 @@ var nwjs = function( husky ) {
       return false;
     }
 
+    fs = require('fs');
+
     //Turn myself on if there is no default driver.
     if ( husky.config.activeDriver.fs === null ) {
       husky.config.activeDriver.fs = 'nwjsfs';
-    }
 
-    fs = require('fs');
+      //Set default directory URI.
+      gui = require('nw.gui');
+      if ( typeof gui.App.argv[0] !== 'undefined' ) {
+        dwd = gui.App.argv[0];
+
+        try {
+          var st = fs.lstatSync(dwd);
+        } catch(e) {
+          return true;
+        }
+
+        //Does this directory actually exist? Check me...
+        if ( st.isDirectory() ) {
+          husky.currentDirectory = dwd;
+        } else if ( st.isFile() ) {
+
+          //Nw.js bug:
+          //Passing a file to ./nw tries to execute the file.
+          //This needs a fix in the future.
+          husky.log('Tried to open file but could not due to nwjs bug. See nwg.init().');
+        }
+
+      }
+    }
 
   };
 
   nwg.ls = function( uri, callback ) {
 
-    if ( uri === null ) uri = process.cwd();
+    if ( uri === null ) {
+      if ( husky.currentDirectory === null ) {
+        uri = process.cwd();
+      } else {
+        uri = husky.currentDirectory;
+      }
+    }
 
     fs.readdir(uri,function(err,files){
       if ( typeof files === "undefined" ) {

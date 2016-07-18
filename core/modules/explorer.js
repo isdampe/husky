@@ -4,18 +4,25 @@ var explorer = function( husky ) {
   var elWrapper, elList, visible = false;
   var directoryList = [];
   var directories = {};
+  var lastDirectoryUsed = null;
 
   explorerm.toggle = function() {
 
     if ( visible === false ) {
+      if ( typeof husky.hideConsole !== 'undefined' ) husky.hideConsole();
+      
       explorerm.refreshList();
       elWrapper.className = 'explorer-wrapper explorer-wrapper-active';
       visible = true;
     } else {
-      elWrapper.className = 'explorer-wrapper';
-      visible = false;
+      explorerm.hide();
     }
 
+  };
+
+  explorerm.hide = function() {
+    elWrapper.className = 'explorer-wrapper';
+    visible = false;
   };
 
   explorerm.expandSubFolder = function(uri,parentList) {
@@ -97,6 +104,17 @@ var explorer = function( husky ) {
 
   explorerm.refreshList = function() {
 
+    husky.log('h:' + husky.currentDirectory);
+    husky.log(lastDirectoryUsed);
+    if ( husky.currentDirectory !== lastDirectoryUsed ) {
+      //Clear the list.
+      elList.innerHTML = '';
+      directoryList = [];
+      directories = {};
+      explorerm.prefillList(husky.currentDirectory);
+      lastDirectoryUsed = husky.currentDirectory;
+    }
+
     for ( var i=0; i<directoryList.length; i++ ) {
       if ( husky.isBufferOpen(directoryList[i].uri) ) {
         directoryList[i].el.classList.add('active');
@@ -108,9 +126,12 @@ var explorer = function( husky ) {
   //Get directory contents.
   explorerm.prefillList = function(uri, parent) {
 
-    var parentEl;
+    var parentEl, noParent = false;
     if ( typeof uri === 'undefined' ) uri = null;
-    if ( typeof parent === 'undefined' ) parent = elList;
+    if ( typeof parent === 'undefined' ) {
+      parent = elList;
+      noParent = true;
+    }
 
     var fsDriver = husky.config.activeDriver.fs || null;
     if (! fsDriver ) {
@@ -126,6 +147,9 @@ var explorer = function( husky ) {
     }
 
     if ( directories.hasOwnProperty(uri) ) return false;
+    if ( noParent === true ) {
+      lastDirectoryUsed = uri;
+    }
 
     husky.drivers[fsDriver].ls(uri,function(err,ls){
       if ( err ) {
@@ -167,7 +191,7 @@ var explorer = function( husky ) {
     });
 
     //Preload list.
-    explorerm.prefillList();
+    explorerm.prefillList(husky.currentDirectory);
 
   };
 
