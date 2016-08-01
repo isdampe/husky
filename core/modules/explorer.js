@@ -9,8 +9,6 @@ var explorer = function( husky ) {
   explorerm.toggle = function() {
 
     if ( visible === false ) {
-      if ( typeof husky.hideConsole !== 'undefined' ) husky.hideConsole();
-
       explorerm.refreshList();
       elWrapper.className = 'explorer-wrapper explorer-wrapper-active';
       visible = true;
@@ -63,7 +61,8 @@ var explorer = function( husky ) {
     if ( type === 'file' ) {
       this.classList.add('active');
       husky.modules['io'].openFileToBuffer([ uri ]);
-      explorerm.toggle();
+      //optional
+      //explorerm.toggle();
 
     } else if ( type === 'directory' ) {
       explorerm.expandSubFolder(uri, this);
@@ -121,6 +120,34 @@ var explorer = function( husky ) {
 
   };
 
+  explorerm.isBlocked = function( name, type ) {
+
+    var blockedExtensions = {
+      '.dat': true,
+      '.so': true,
+      '.exe': true,
+      '.zip': true,
+      '.tar': true,
+      '.rar': true,
+      '.tar.gz': true,
+      '.swp': true,
+      '.pak': true
+    };
+
+    if ( type === 'file' ) {
+      var ext = name.substring(name.lastIndexOf('.'));
+      if ( blockedExtensions.hasOwnProperty(ext) ) return true;
+    } else if ( type === 'directory' ) {
+      //Block directories that are hidden.
+      if ( name.substring(0,1) === '.' ) {
+        return true;
+      }
+    }
+
+    return false;
+
+  };
+
   //Get directory contents.
   explorerm.prefillList = function(uri, parent) {
 
@@ -133,7 +160,7 @@ var explorer = function( husky ) {
 
     var fsDriver = husky.config.activeDriver.fs || null;
     if (! fsDriver ) {
-      callback('No fs driver registered. Cannot prefillList.');
+      husky.error('No fs driver registered. Cannot prefillList.');
       return false;
     }
 
@@ -151,12 +178,30 @@ var explorer = function( husky ) {
 
     husky.drivers[fsDriver].ls(uri,function(err,ls){
       if ( err ) {
-        window.alert('There was an error');
+        husky.error('Unable to "ls" file directory. If you are running husky on the web, you probably need to authenticate first.')
         return false;
       }
 
+      var dirs = [], files = [];
+
+      //Reorder, set directories first.
       for ( var i=0; i<ls.length; i++ ) {
-        explorerm.addItemToMenu(ls[i],parent);
+        if ( ls[i].type === 'directory' ) {
+          dirs.push(ls[i]);
+        } else {
+          files.push(ls[i]);
+        }
+      }
+
+      for ( var i=0; i<files.length; i++ ) {
+        dirs.push(files[i]);
+      }
+
+
+      for ( var i=0; i<dirs.length; i++ ) {
+        if (! explorerm.isBlocked(dirs[i].name, dirs[i].type) ) {
+          explorerm.addItemToMenu(dirs[i],parent);
+        }
       }
 
       directories[uri] = uri;
@@ -170,7 +215,7 @@ var explorer = function( husky ) {
 
     elWrapper = document.createElement('nav');
     elWrapper.id = 'explorer';
-    elWrapper.className = 'explorer-wrapper';
+    elWrapper.className = 'explorer-wrapper explorer-wrapper-active';
 
     elList = document.createElement('ol');
     elList.id = 'explorer-list';
@@ -178,7 +223,7 @@ var explorer = function( husky ) {
 
     elWrapper.appendChild(elList);
 
-    document.body.appendChild(elWrapper);
+    document.getElementById('viewport').appendChild(elWrapper);
 
     //Hotkeys.
     window.addEventListener('keydown', function(e){

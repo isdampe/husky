@@ -225,9 +225,6 @@ var husky = function() {
 
     if (! husky.console.wr.classList.contains('console-visible') ) {
 
-      //Try to hide the sidebar.
-      if ( typeof husky.modules.explorer.hide !== 'undefined' ) husky.modules.explorer.hide();
-
       husky.console.wr.classList.add('console-visible');
       husky.console.in.focus();
     } else {
