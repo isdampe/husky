@@ -11,7 +11,7 @@ var husky = function() {
   husky.commandMemory = [];
   husky.lastCommand = null;
   husky.currentCommand = -1;
-  husky.currentDirectory = null
+  husky.currentDirectory = null;
   husky.hooke = (window.chrome && chrome.runtime && chrome.runtime.id) ? 'keydown' : 'keyup';
 
   husky.config = {
