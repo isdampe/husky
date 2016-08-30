@@ -26,6 +26,7 @@ var husky = function() {
 
   husky.cmd = {};
   husky.console = {};
+  husky.hookedConsoleCallback = null;
   husky.commands = [];
   husky.cmdSuggestion = document.getElementById('cmd-suggestion');
 
@@ -64,6 +65,39 @@ var husky = function() {
   husky.setKeyMap = function( key, keyMap ) {
 
     huskyCore.viewports[key].CodeMirror.setOption("keyMap","vim");
+
+  };
+
+  husky.requestInput = function(message, callback) {
+
+    husky.log(message);
+    if (! husky.console.wr.classList.contains('console-visible') ) {
+      husky.toggleConsole();
+    }
+
+    husky.hookedConsoleCallback = callback;
+
+    husky.console.in.addEventListener('keypress', husky.readInput);
+
+  };
+
+  husky.readInput = function(e) {
+
+    if ( e.which === 27 ) {
+      husky.console.in.value = '';
+      husky.hookedConsoleCallback = null;
+      husky.console.in.removeEventListener('keypress', husky.readInput);
+      husky.toggleConsole();
+      return;
+    }
+
+    if ( e.which !== 13 ) return;
+
+    husky.hookedConsoleCallback(husky.console.in.value);
+    husky.console.in.value = '';
+    husky.hookedConsoleCallback = null;
+    husky.console.in.removeEventListener('keypress', husky.readInput);
+    husky.toggleConsole();
 
   };
 
@@ -224,7 +258,6 @@ var husky = function() {
   husky.toggleConsole = function() {
 
     if (! husky.console.wr.classList.contains('console-visible') ) {
-
       husky.console.wr.classList.add('console-visible');
       husky.console.in.focus();
     } else {
@@ -654,7 +687,8 @@ var husky = function() {
     husky.buffers[uri] = {
       doc: husky.viewports[key].CodeMirror.getDoc().copy(),
       history: husky.viewports[key].CodeMirror.getDoc().getHistory(),
-      cursor: husky.viewports[key].CodeMirror.getDoc().getCursor()
+      cursor: husky.viewports[key].CodeMirror.getDoc().getCursor(),
+      key: key
     };
 
   }

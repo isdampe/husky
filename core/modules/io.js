@@ -110,18 +110,22 @@ var io = function( husky ) {
       husky.updateBuffer(key);
     };
 
+
+    //Is there uri already open?
+    if ( husky.buffers.hasOwnProperty(uri) ) {
+      if ( husky.buffers[uri].key !== key ) {
+        //Move the buffers instead.
+        huskyCore.modules.viewport.swapBuffers([husky.buffers[uri].key, key], 2);
+        husky.buffers[uri].key = key;
+        huskyCore.switchFocus(key);
+        return true;
+      }
+    }
+
     husky.clearBuffer( key );
     husky.viewports[key].uri = uri;
     husky.currentKey = key;
     husky.autoSetMode(key);
-
-    if ( husky.buffers.hasOwnProperty(uri) ) {
-      husky.preloadExistingBuffer(key,uri);
-      husky.bufferUpdateLabel(key,uri);
-      husky.bufferUpdateSize(key);
-      husky.viewports[key].hasChanged = false;
-      return true;
-    }
 
     if ( uri !== null ) {
       iom.fetchBufferByUri( uri, callback );

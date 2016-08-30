@@ -138,11 +138,13 @@ var viewport = function( husky ) {
     husky.viewports[key1].CodeMirror.getDoc().setHistory(doc2.history);
     husky.viewports[key1].CodeMirror.getDoc().setCursor(doc2.cursor);
     husky.viewports[key1].uri = doc2.uri;
+    husky.buffers[doc1.uri].key = key2;
 
     husky.viewports[key2].CodeMirror.swapDoc(doc1.doc);
     husky.viewports[key2].CodeMirror.getDoc().setHistory(doc1.history);
     husky.viewports[key2].CodeMirror.getDoc().setCursor(doc1.cursor);
     husky.viewports[key2].uri = doc1.uri;
+    husky.buffers[doc2.uri].key = key1;
 
     husky.bufferUpdateSize(key1,doc2.uri);
     husky.bufferUpdateLabel(key1,doc2.uri);
