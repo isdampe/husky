@@ -108,10 +108,11 @@ var io = function( husky ) {
       husky.bufferUpdateSize(key);
       husky.viewports[key].hasChanged = false;
       husky.updateBuffer(key);
+      
     };
 
 
-    //Is there uri already open?
+    //Is the uri already open?
     if ( husky.buffers.hasOwnProperty(uri) ) {
       if ( husky.buffers[uri].key !== key ) {
         //Move the buffers instead.
@@ -122,15 +123,38 @@ var io = function( husky ) {
       }
     }
 
-    husky.clearBuffer( key );
-    husky.viewports[key].uri = uri;
-    husky.currentKey = key;
-    husky.autoSetMode(key);
 
-    if ( uri !== null ) {
-      iom.fetchBufferByUri( uri, callback );
+    var nextAction = function() {
+      husky.clearBuffer( key );
+      husky.viewports[key].uri = uri;
+      husky.currentKey = key;
+      husky.autoSetMode(key);
+
+      if ( uri !== null ) {
+        iom.fetchBufferByUri( uri, callback );
+      } else {
+        callback();
+      }
+    };
+
+    //Is there a buffer that is already open?
+    if ( husky.viewports[key].hasChanged === true ) {
+      //Save first?
+      var ri = function() {
+        huskyCore.requestInput('Save current open buffer before closing it? (Y/N)', function(answer){
+          if ( answer.toUpperCase() === "Y" ) {
+            iom.writeBuffer(key);
+            nextAction();
+          } else if ( answer.toUpperCase() === "N" ) {
+            nextAction();
+          } else {
+            ri();
+          }
+        });
+      };
+      ri();
     } else {
-      callback();
+      nextAction();
     }
 
     return true;
