@@ -2,6 +2,25 @@ var io = function( husky ) {
 
   var iom = this;
 
+  iom.quitBuffer = function( argv, argc ) {
+
+    var key;
+    if ( argc < 1 ) {
+      key = husky.currentKey;
+    } else {
+      key = argv[0];
+    }
+
+    //Open a blank buffer.
+    iom.openFileToBuffer(['/dev/null'],1, function(){
+      //Remove the buffer.
+      delete husky.buffers[husky.viewports[key].uri];
+    });
+
+    return true;
+
+  };
+
   iom.openFileToBuffer = function( argv, argc ) {
 
     var argvS = [];
@@ -113,7 +132,7 @@ var io = function( husky ) {
 
 
     //Is the uri already open?
-    if ( husky.buffers.hasOwnProperty(uri) ) {
+    if ( husky.buffers.hasOwnProperty(uri) && uri !== '/dev/null' ) {
       if ( husky.buffers[uri].key !== key ) {
         //Move the buffers instead.
         huskyCore.modules.viewport.swapBuffers([husky.buffers[uri].key, key], 2);
@@ -135,18 +154,21 @@ var io = function( husky ) {
       } else {
         callback();
       }
+
     };
 
     //Is there a buffer that is already open?
-    if ( husky.viewports[key].hasChanged === true ) {
+    if ( husky.viewports[key].hasChanged === true && husky.viewports[key].uri !== '/dev/null' ) {
       //Save first?
       var ri = function() {
         huskyCore.requestInput('Save current open buffer before closing it? (Y/N)', function(answer){
           if ( answer.toUpperCase() === "Y" ) {
             iom.writeBuffer(key);
             nextAction();
+            delete ri;
           } else if ( answer.toUpperCase() === "N" ) {
             nextAction();
+            delete ri;
           } else {
             ri();
           }
@@ -267,6 +289,13 @@ var io = function( husky ) {
       s: /(w|w\s.*)$/g,
       d: "Write the currently open buffer to disk",
       fn: iom.writeBuffer
+    });
+    husky.commands.push({
+      name: "Quit buffer",
+      c: "q [viewport]",
+      s: /^q\s?.*/g,
+      d: 'Quits the specified buffer',
+      fn: iom.quitBuffer
     });
     husky.commands.push({
       name: "Write all buffers",

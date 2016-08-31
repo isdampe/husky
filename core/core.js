@@ -113,13 +113,14 @@ var husky = function() {
 
   husky.requestInput = function(message, callback) {
 
+    if ( husky.hookedConsoleCallback !== null ) return;
     husky.log(message);
     if (! husky.console.wr.classList.contains('console-visible') ) {
       husky.toggleConsole();
     }
 
-    husky.hookedConsoleCallback = callback;
 
+    husky.hookedConsoleCallback = callback;
     husky.console.in.addEventListener('keypress', husky.readInput);
 
   };
@@ -500,6 +501,7 @@ var husky = function() {
 
     if ( e.keyCode === 13 ) {
       e.preventDefault();
+      husky.hideCmd();
       if ( currentCmd ) {
 
         if ( husky.lastCommand !== vl ) {
@@ -511,14 +513,12 @@ var husky = function() {
           for ( i=0; i<max; i++ ) {
             husky.commands[i].el.style.display = "block";
           }
-          husky.toggleCmd();
           return true;
         }
       } else {
         for ( i=0; i<max; i++ ) {
           husky.commands[i].el.style.display = "block";
         }
-        husky.toggleCmd();
       }
 
     }
