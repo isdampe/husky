@@ -2,6 +2,15 @@
 	font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
 }
 
+@mixin noUserSelect() {
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none;   /* Chrome/Safari/Opera */
+	-khtml-user-select: none;    /* Konqueror */
+	-moz-user-select: none;      /* Firefox */
+	-ms-user-select: none;       /* Internet Explorer/Edge */
+	user-select: none;
+}
+
 * {
 	box-sizing: border-box;
 }
@@ -164,6 +173,7 @@ textarea {
 	width: 100%;
 	height: 100%;
 	order: 2;
+	@include noUserSelect();
 }
 
 .viewport {
@@ -192,12 +202,7 @@ textarea {
 		line-height: 20px;
 		color: #fff;
 		font-size: 11px;
-		-webkit-touch-callout: none; /* iOS Safari */
-	  -webkit-user-select: none;   /* Chrome/Safari/Opera */
-	  -khtml-user-select: none;    /* Konqueror */
-	  -moz-user-select: none;      /* Firefox */
-	  -ms-user-select: none;       /* Internet Explorer/Edge */
-	  user-select: none;
+		@include noUserSelect();
 		cursor: default;
 	}
 
@@ -435,12 +440,7 @@ textarea {
 	font-family: Menlo, Consolas, Helvetica, Cantarell, sans-serif;
 	background: #fafafa;
 	border: 1px solid #ccc;
-	-webkit-touch-callout: none; /* iOS Safari */
-  -webkit-user-select: none;   /* Chrome/Safari/Opera */
-  -khtml-user-select: none;    /* Konqueror */
-  -moz-user-select: none;      /* Firefox */
-  -ms-user-select: none;       /* Internet Explorer/Edge */
-  user-select: none;
+	@include noUserSelect();
 
 	li {
 		display: block;
