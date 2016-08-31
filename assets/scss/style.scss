@@ -192,6 +192,13 @@ textarea {
 		line-height: 20px;
 		color: #fff;
 		font-size: 11px;
+		-webkit-touch-callout: none; /* iOS Safari */
+	  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+	  -khtml-user-select: none;    /* Konqueror */
+	  -moz-user-select: none;      /* Firefox */
+	  -ms-user-select: none;       /* Internet Explorer/Edge */
+	  user-select: none;
+		cursor: default;
 	}
 
 	.drop {
@@ -417,4 +424,32 @@ textarea {
 
 .CodeMirror-dialog button {
   font-size: 70%;
+}
+
+.context-menu {
+	position: absolute;
+	z-index: 99;
+	margin: 0;
+	padding: 0;
+	font-size: 11px;
+	font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+	background: #1e2127;
+	border: 1px solid darken(#1e2127,3);
+	-webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;
+
+	li {
+		display: block;
+		padding: 0.75em 1.5em;
+		color: rgba(255,255,255,0.8);
+		cursor: default;
+
+		&:hover {
+			background: #31363f;
+		}
+	}
 }

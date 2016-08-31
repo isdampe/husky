@@ -30,6 +30,37 @@ var husky = function() {
   husky.commands = [];
   husky.cmdSuggestion = document.getElementById('cmd-suggestion');
 
+  husky.createContextMenu = function( e, menu ) {
+
+    if ( typeof menu === 'undefined' ) {
+      husky.error('createContextMenu called without a menu object');
+      return false;
+    }
+
+    var ctx = document.createElement('ul');
+    ctx.className = 'context-menu';
+
+    var cmi;
+    var i = 0, max = menu.length;
+    for ( i; i<max; i++ ) {
+      cmi = document.createElement('li');
+      cmi.innerHTML = menu[i].label;
+      (function(menu){
+        cmi.addEventListener('click', function(e){
+          menu(ctx,e);
+        });
+      })(menu[i].click);
+      ctx.appendChild(cmi);
+    }
+
+    //Set position based on mouse
+    ctx.style.left = '50px';
+    ctx.style.top = '50px';
+
+    document.body.appendChild(ctx);
+
+  };
+
   husky.registerModule = function( guid, obj ) {
 
     if (! husky.modules.hasOwnProperty(guid) ) {
@@ -726,6 +757,26 @@ var husky = function() {
     husky.setupConsole();
     husky.setupCmd();
     husky.focusEditor();
+
+    //Debug
+    husky.createContextMenu(false,[
+      {
+        label: 'Create new file',
+        click: function(ctx,e) {
+          e.preventDefault();
+          window.alert('Creating file');
+          ctx.parentNode.removeChild(ctx);
+        }
+      },
+      {
+        label: 'Close burrent buffer',
+        click: function(ctx,e) {
+          e.preventDefault();
+          window.alert('Closing buffer');
+          ctx.parentNode.removeChild(ctx);
+        }
+      }
+    ]);
 
   };
 

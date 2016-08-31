@@ -108,7 +108,7 @@ var io = function( husky ) {
       husky.bufferUpdateSize(key);
       husky.viewports[key].hasChanged = false;
       husky.updateBuffer(key);
-      
+
     };
 
 
