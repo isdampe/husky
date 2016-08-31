@@ -29,6 +29,7 @@ var husky = function() {
   husky.hookedConsoleCallback = null;
   husky.commands = [];
   husky.cmdSuggestion = document.getElementById('cmd-suggestion');
+  husky.currentCtxMenu = false;
 
   husky.createContextMenu = function( e, menu ) {
 
@@ -36,6 +37,8 @@ var husky = function() {
       husky.error('createContextMenu called without a menu object');
       return false;
     }
+
+    husky.closeCtxMenu();
 
     var ctx = document.createElement('ul');
     ctx.className = 'context-menu';
@@ -48,17 +51,26 @@ var husky = function() {
       (function(menu){
         cmi.addEventListener('click', function(e){
           menu(ctx,e);
+          husky.closeCtxMenu();
         });
       })(menu[i].click);
       ctx.appendChild(cmi);
     }
 
     //Set position based on mouse
-    ctx.style.left = '50px';
-    ctx.style.top = '50px';
+    ctx.style.left = e.clientX + 'px';
+    ctx.style.top = e.clientY + 'px';
 
     document.body.appendChild(ctx);
+    husky.currentCtxMenu = ctx;
 
+  };
+
+  husky.closeCtxMenu = function() {
+    if ( husky.currentCtxMenu !== false ) {
+      husky.currentCtxMenu.parentNode.removeChild(husky.currentCtxMenu);
+      husky.currentCtxMenu = false;
+    }
   };
 
   husky.registerModule = function( guid, obj ) {
@@ -161,6 +173,7 @@ var husky = function() {
       (function(key){
         husky.viewports[key].CodeMirror.on('focus', function(e){
           husky.switchFocus( key );
+          husky.closeCtxMenu();
         });
       })(key);
 
@@ -759,6 +772,7 @@ var husky = function() {
     husky.focusEditor();
 
     //Debug
+    /*
     husky.createContextMenu(false,[
       {
         label: 'Create new file',
@@ -776,7 +790,7 @@ var husky = function() {
           ctx.parentNode.removeChild(ctx);
         }
       }
-    ]);
+    ]);*/
 
   };
 

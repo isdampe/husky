@@ -1,7 +1,7 @@
 var explorer = function( husky ) {
 
   var explorerm = this;
-  var elWrapper, elList, visible = false;
+  var elWrapper, elList, visible = true;
   var directoryList = [];
   var directories = {};
   var lastDirectoryUsed = null;
@@ -80,6 +80,66 @@ var explorer = function( husky ) {
     el.setAttribute('data-type', obj.type);
     el.setAttribute('data-uri', obj.uri);
     el.addEventListener('click', explorerm.handleClick);
+    el.addEventListener('contextmenu',function(e){
+      if ( obj.type === 'file' ) {
+        huskyCore.createContextMenu(e,[
+          {
+            label: 'Open',
+            click: function(ctx,e) {
+              el.click();
+            }
+          },
+          {
+            label: 'Rename',
+            click: function(ctx,e) {
+              husky.log('Renaming ' + obj.uri);
+            }
+          },
+          {
+            label: 'Copy',
+            click: function(ctx,e) {
+              husky.log('Copying');
+            }
+          },
+          {
+            label: 'New file',
+            click: function(ctx,e) {
+              var dir = obj.uri.substring(0,obj.uri.lastIndexOf('/'));
+              explorerm.createNewFile(dir);
+            }
+          },
+          {
+            label: 'Refresh',
+            click: explorerm.refreshList
+          }
+        ]);
+      } else if ( obj.type === 'directory' ) {
+        huskyCore.createContextMenu(e,[
+          {
+            label: 'Toggle visibility',
+            click: function(ctx,e) {
+              el.click();
+            }
+          },
+          {
+            label: 'New file',
+            click: function(ctx,e) {
+              explorerm.createNewFile(obj.uri);
+            }
+          },
+          {
+            label: 'New directory',
+            click: function(ctx,e) {
+              husky.log('Creating new directory in ' + obj.uri);
+            }
+          },
+          {
+            label: 'Refresh',
+            click: explorerm.refreshList
+          }
+        ]);
+      }
+    });
 
 
 
@@ -98,6 +158,20 @@ var explorer = function( husky ) {
     directoryList.push(obj);
 
     parent.appendChild(el);
+
+  };
+
+  explorerm.createNewFile = function( uri ) {
+    if ( typeof uri === 'undefined' ) return false;
+
+    huskyCore.requestInput('New file name? (Writing to ' + uri + ') ', function(stdin){
+
+      if ( stdin == '' ) return false;
+
+      var furi = uri + '/' + stdin;
+      huskyCore.modules.io.newBufferCmd([huskyCore.currentViewport, furi],2);
+
+    });
 
   };
 

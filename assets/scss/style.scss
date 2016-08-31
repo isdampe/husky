@@ -431,10 +431,10 @@ textarea {
 	z-index: 99;
 	margin: 0;
 	padding: 0;
-	font-size: 11px;
-	font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
-	background: #1e2127;
-	border: 1px solid darken(#1e2127,3);
+	font-size: 12px;
+	font-family: Menlo, Consolas, Helvetica, Cantarell, sans-serif;
+	background: #fafafa;
+	border: 1px solid #ccc;
 	-webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none;   /* Chrome/Safari/Opera */
   -khtml-user-select: none;    /* Konqueror */
@@ -444,12 +444,13 @@ textarea {
 
 	li {
 		display: block;
-		padding: 0.75em 1.5em;
-		color: rgba(255,255,255,0.8);
+		padding: 0.65em 2em;
+		color: #444;
 		cursor: default;
 
 		&:hover {
-			background: #31363f;
+			background: #528bff;
+			color: #fff;
 		}
 	}
 }
