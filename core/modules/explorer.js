@@ -189,6 +189,8 @@ var explorer = function( husky ) {
     for ( var i=0; i<directoryList.length; i++ ) {
       if ( husky.isBufferOpen(directoryList[i].uri) ) {
         directoryList[i].el.classList.add('active');
+      } else {
+        directoryList[i].el.classList.remove('active');
       }
     }
 
@@ -306,6 +308,9 @@ var explorer = function( husky ) {
         e.preventDefault();
       }
     });
+
+    //Callback hooks into core.
+    huskyCore.on('buffersChange', explorerm.refreshList);
 
     //Preload list.
     explorerm.prefillList(husky.currentDirectory);

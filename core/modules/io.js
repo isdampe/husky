@@ -11,11 +11,8 @@ var io = function( husky ) {
       key = argv[0];
     }
 
-    //Open a blank buffer.
-    iom.openFileToBuffer(['/dev/null'],1, function(){
-      //Remove the buffer.
-      delete husky.buffers[husky.viewports[key].uri];
-    });
+    //Close the buffer.
+    huskyCore.closeBuffer( key );
 
     return true;
 
@@ -127,6 +124,7 @@ var io = function( husky ) {
       husky.bufferUpdateSize(key);
       husky.viewports[key].hasChanged = false;
       husky.updateBuffer(key);
+      husky.emit('buffersChange');
 
     };
 
@@ -153,6 +151,7 @@ var io = function( husky ) {
         iom.fetchBufferByUri( uri, callback );
       } else {
         callback();
+        husky.emit('buffersChange');
       }
 
     };
@@ -161,18 +160,16 @@ var io = function( husky ) {
     if ( husky.viewports[key].hasChanged === true && husky.viewports[key].uri !== '/dev/null' ) {
       //Save first?
       var ri = function() {
-        huskyCore.requestInput('Save current open buffer before closing it? (Y/N)', function(answer){
-          if ( answer.toUpperCase() === "Y" ) {
+
+        husky.confirm('Save current buffer before closing it? (Y/N)', function(bool){
+          if ( bool === true ) {
             iom.writeBuffer(key);
             nextAction();
-            delete ri;
-          } else if ( answer.toUpperCase() === "N" ) {
-            nextAction();
-            delete ri;
           } else {
-            ri();
+            nextAction();
           }
         });
+
       };
       ri();
     } else {
@@ -205,9 +202,7 @@ var io = function( husky ) {
     husky.log('Changed working directory to ' + cwd);
 
     //Try to update explorer.
-    if ( typeof husky.modules.explorer.refreshList !== 'undefined' ) {
-      husky.modules.explorer.refreshList();
-    }
+    husky.emit('buffersChange');
 
     return true;
 

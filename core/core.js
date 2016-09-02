@@ -2,6 +2,7 @@ var husky = function() {
 
   var husky = this;
 
+  husky.events = {};
   husky.currentKey = 1;
   husky.currentVisibleBuffers = 3;
   husky.viewports = {};
@@ -30,6 +31,35 @@ var husky = function() {
   husky.commands = [];
   husky.cmdSuggestion = document.getElementById('cmd-suggestion');
   husky.currentCtxMenu = false;
+
+  husky.on = function(key, callback) {
+
+    //Register our callback.
+    if (! husky.events.hasOwnProperty(key) ) {
+      husky.events[key] = [];
+    }
+
+    husky.events[key].push( callback );
+
+  };
+
+  husky.emit = function(key, args) {
+
+    if (! husky.events.hasOwnProperty(key) ) return;
+    if ( typeof args === 'undefined' ) var args = false;
+
+    var i = 0, max = husky.events[key].length;
+    for ( i; i<max; i++ ) {
+      if ( typeof husky.events[key][i] !== 'undefined' ) {
+        if ( args ) {
+          husky.events[key][i](args);
+        } else {
+          husky.events[key][i]();
+        }
+      }
+    }
+
+  };
 
   husky.createContextMenu = function( e, menu ) {
 
@@ -234,6 +264,69 @@ var husky = function() {
     } else {
       return false;
     }
+
+  };
+
+  husky.closeBuffer = function( key ) {
+
+    var uri = husky.viewports[key].uri;
+
+    var callback = function() {
+      //Clear code mirror
+      husky.viewports[key].CodeMirror.setValue('');
+      husky.viewports[key].uri = null;
+
+      //Set viewport to null /dev/null
+      husky.bufferUpdateLabel(key);
+      husky.bufferUpdateSize(key);
+      husky.viewports[key].hasChanged = false;
+
+      //Delete the buffer from memory.
+      delete husky.buffers[uri];
+
+      husky.emit('buffersChange');
+
+    };
+
+    //Does file need to save first?
+    if ( husky.viewports[key].hasChanged ) {
+
+      husky.confirm('Save current buffer before closing it? (Y/N)', function(bool){
+        if ( bool === true ) {
+          husky.modules.io.writeBuffer(key);
+          callback();
+        } else {
+          callback();
+        }
+      });
+
+    } else {
+      callback();
+    }
+
+  };
+
+  husky.confirm = function(message,callback) {
+
+    var ri = function() {
+      husky.requestInput(message, function(answer){
+        answer = answer.toUpperCase();
+
+        if ( answer === "Y" ) {
+          callback(true);
+          delete ri;
+        } else if ( answer === "N" ) {
+          callback(false);
+          delete ri;
+        } else {
+          //Recurse.....
+          husky.confirm(message,callback);
+        }
+
+      });
+    };
+
+    ri();
 
   };
 
