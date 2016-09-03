@@ -227,6 +227,7 @@ var io = function( husky ) {
 
     //Open file buffer.
     husky.drivers[fsDriver].writeFile( uri, buffer, function(err,data){
+      husky.log('Wrote buffer to ' + uri);
       callback(err,data);
     } );
 
