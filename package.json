@@ -1,5 +1,5 @@
 {
-  "main": "window.html",
+  "main": "index.html",
   "name": "Husky",
   "description": "A source code editor",
   "version": "0.1.0",
