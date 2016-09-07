@@ -2,6 +2,7 @@ var husky = function() {
 
   var husky = this;
 
+  husky.cancelHook = null;
   husky.events = {};
   husky.currentKey = 1;
   husky.currentVisibleBuffers = 3;
@@ -159,11 +160,29 @@ var husky = function() {
 
   husky.requestInput = function(message, callback) {
 
+    if ( husky.cancelHook !== null ) {
+      husky.emit('closeConsole');
+    }
+
     if ( husky.hookedConsoleCallback !== null ) return;
     husky.log(message);
     if (! husky.console.wr.classList.contains('console-visible') ) {
       husky.toggleConsole();
     }
+
+    husky.console.in.focus();
+
+    //Register cancel callback.
+    husky.cancelHook = husky.on('closeConsole', function(){
+
+      husky.console.in.value = '';
+      husky.hookedConsoleCallback = null;
+      husky.console.in.removeEventListener('keypress', husky.readInput);
+      husky.log('Event cancelled');
+
+      //Cancel myself.
+      husky.removeOn('closeConsole', husky.cancelHook);
+    });
 
 
     husky.hookedConsoleCallback = callback;
@@ -175,6 +194,7 @@ var husky = function() {
 
     if ( e.which !== 13 ) return;
 
+    husky.removeOn('closeConsole', husky.cancelHook);
     husky.hookedConsoleCallback(husky.console.in.value);
     husky.console.in.value = '';
     husky.hookedConsoleCallback = null;
@@ -316,24 +336,9 @@ var husky = function() {
 
   husky.confirm = function(message,callback) {
 
-    //Register cancel callback.
-    var cancelHook = husky.on('closeConsole', function(){
-
-      husky.console.in.value = '';
-      husky.hookedConsoleCallback = null;
-      husky.console.in.removeEventListener('keypress', husky.readInput);
-      husky.log('Event cancelled');
-
-      //Cancel myself.
-      husky.removeOn('closeConsole', cancelHook);
-    });
-
     var ri = function() {
       husky.requestInput(message, function(answer){
         answer = answer.toUpperCase();
-
-        //We have already received input.
-        husky.removeOn('closeConsole', cancelHook);
 
         if ( answer === "Y" ) {
           callback(true);

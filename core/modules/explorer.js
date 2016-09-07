@@ -164,23 +164,9 @@ var explorer = function( husky ) {
   explorerm.createNewFile = function( uri ) {
     if ( typeof uri === 'undefined' ) return false;
 
-    //Register cancel callback.
-    var cancelHook = husky.on('closeConsole', function(){
-
-      husky.console.in.value = '';
-      husky.hookedConsoleCallback = null;
-      husky.console.in.removeEventListener('keypress', husky.readInput);
-      husky.log('Event cancelled');
-
-      //Cancel myself.
-      husky.removeOn('closeConsole', cancelHook);
-    });
-
 
     huskyCore.requestInput('New file name? (Writing to ' + uri + ') ', function(stdin){
 
-      husky.removeOn('closeConsole', cancelHook);
-      
       if ( stdin == '' ) return false;
 
       var furi = uri + '/' + stdin;
