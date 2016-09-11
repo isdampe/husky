@@ -81,6 +81,8 @@ var explorer = function( husky ) {
     el.setAttribute('data-uri', obj.uri);
     el.addEventListener('click', explorerm.handleClick);
     el.addEventListener('contextmenu',function(e){
+      e.stopPropagation();
+      
       if ( obj.type === 'file' ) {
         huskyCore.createContextMenu(e,[
           {
