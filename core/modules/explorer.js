@@ -97,7 +97,15 @@ var explorer = function( husky ) {
           {
             label: 'Open',
             click: function(ctx,e) {
-              el.click();
+              var ce = document.createEvent('MouseEvents');
+              ce.initEvent('dblclick',true, true);
+              el.dispatchEvent(ce);
+            }
+          },
+          {
+            label: 'Close',
+            click: function(ctx,e) {
+              husky.log('Close this file...');
             }
           },
           {

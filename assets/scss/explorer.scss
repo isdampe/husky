@@ -29,7 +29,7 @@
 	}
 	li {
 		list-style-type: none;
-		padding: 6px 10px;
+		padding: 8px 10px;
 		line-height: 10px;
 		color: #9da5b4;
 		white-space: nowrap;
@@ -47,18 +47,13 @@
 			font-size: 11px;
 		}
 
-
-		&:hover {
-			color: #eee;
-		}
-
 		ol {
 			border-style: none;
 			padding-top: 8px;
 		}
 	}
 	li.active {
-		color: #eee;
+		background: rgba(255,255,255,0.05);
 	}
 	li.expanded {
 
