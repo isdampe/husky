@@ -79,10 +79,12 @@ var explorer = function( husky ) {
     var el = document.createElement('li'), sp;
     el.setAttribute('data-type', obj.type);
     el.setAttribute('data-uri', obj.uri);
-    el.addEventListener('click', explorerm.handleClick);
+
+    el.addEventListener('dblclick', explorerm.handleClick);
+
     el.addEventListener('contextmenu',function(e){
       e.stopPropagation();
-      
+
       if ( obj.type === 'file' ) {
         huskyCore.createContextMenu(e,[
           {
