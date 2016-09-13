@@ -80,7 +80,14 @@ var explorer = function( husky ) {
     el.setAttribute('data-type', obj.type);
     el.setAttribute('data-uri', obj.uri);
 
-    el.addEventListener('dblclick', explorerm.handleClick);
+    if ( obj.type === 'directory' ) {
+      el.addEventListener('click', explorerm.handleClick);
+    } else {
+      el.addEventListener('click', function(e){
+        e.stopPropagation();
+      });
+      el.addEventListener('dblclick', explorerm.handleClick);
+    }
 
     el.addEventListener('contextmenu',function(e){
       e.stopPropagation();
