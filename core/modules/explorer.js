@@ -105,7 +105,7 @@ var explorer = function( husky ) {
           {
             label: 'Close',
             click: function(ctx,e) {
-              husky.log('Close this file...');
+              huskyCore.closeBuffer(false, obj.uri);
             }
           },
           {
@@ -187,9 +187,18 @@ var explorer = function( husky ) {
     huskyCore.requestInput('New file name? (Writing to ' + uri + ') ', function(stdin){
 
       if ( stdin == '' ) return false;
-
       var furi = uri + '/' + stdin;
-      huskyCore.modules.io.newBufferCmd([huskyCore.currentViewport, furi],2);
+
+      huskyCore.modules.io.touch(furi,function(err,uri){
+        if ( err ) {
+          husky.error(err);
+        }
+
+        husky.modules.io.openFileToBuffer([uri, huskyCore.currentViewport],2);
+        huskyCore.emit('buffersChange');
+
+      });
+      //huskyCore.modules.io.newBufferCmd([huskyCore.currentViewport, furi],2);
 
     });
 

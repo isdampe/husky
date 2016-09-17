@@ -2,6 +2,28 @@ var io = function( husky ) {
 
   var iom = this;
 
+  /*
+   * Tries to create a new file
+   * @param  string uri The full URI of the file to create
+   * @param  function callback The callback function
+   * @return bool      Always true, error handling via callback
+   */
+  iom.touch = function( uri, callback ) {
+
+    //Does the file exist?
+    var fsDriver = husky.config.activeDriver.fs || null;
+    if (! fsDriver ) {
+      husky.error( 'No fs driver registered. Cannot fetchBufferByUri.', 1 );
+      callback();
+      return false;
+    }
+
+    //Open file buffer.
+    husky.drivers[fsDriver].touchFile(uri, callback);
+
+
+  };
+
   iom.quitBuffer = function( argv, argc ) {
 
     var key;
@@ -92,7 +114,6 @@ var io = function( husky ) {
     var key = husky.currentKey;
     var uri = null, ccb = "", callback;
 
-    //Save current buffer first?
 
     if ( argc > 0 ) {
       //Viewport number.
@@ -123,7 +144,7 @@ var io = function( husky ) {
       husky.bufferUpdateLabel(key,uri);
       husky.bufferUpdateSize(key);
       husky.viewports[key].hasChanged = false;
-      husky.updateBuffer(key);
+      husky.updateBuffer(key,true);
       husky.emit('buffersChange');
 
     };
@@ -142,6 +163,7 @@ var io = function( husky ) {
 
 
     var nextAction = function() {
+
       husky.clearBuffer( key );
       husky.viewports[key].uri = uri;
       husky.currentKey = key;

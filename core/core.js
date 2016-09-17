@@ -295,19 +295,47 @@ var husky = function() {
 
   };
 
-  husky.closeBuffer = function( key ) {
+  husky.closeBuffer = function( key, furi ) {
 
-    var uri = husky.viewports[key].uri;
+    var uri, active = false;
+
+    if ( key === false ) {
+      if ( typeof furi !== 'undefined' ) {
+        uri = furi;
+      } else {
+        husky.error('Cannot close buffer before no key or uri was specified.');
+        return false;
+      }
+
+      if (! husky.isBufferOpen(uri) ) {
+        husky.error('Cannot close a buffer that is not open');
+        return false;
+      }
+
+      //Get key by URI.
+      key = husky.buffers[uri].key;
+      if ( husky.buffers[uri].visible === true ) {
+        active = true;
+      }
+
+    } else {
+      uri = husky.viewports[key].uri;
+    }
 
     var callback = function() {
-      //Clear code mirror
-      husky.viewports[key].CodeMirror.setValue('');
-      husky.viewports[key].uri = null;
 
-      //Set viewport to null /dev/null
-      husky.bufferUpdateLabel(key);
-      husky.bufferUpdateSize(key);
-      husky.viewports[key].hasChanged = false;
+      if ( active === true ) {
+
+        //Clear code mirror
+        husky.viewports[key].CodeMirror.setValue('');
+        husky.viewports[key].uri = null;
+
+        //Set viewport to null /dev/null
+        husky.bufferUpdateLabel(key);
+        husky.bufferUpdateSize(key);
+        husky.viewports[key].hasChanged = false;
+
+      }
 
       //Delete the buffer from memory.
       delete husky.buffers[uri];
@@ -846,7 +874,9 @@ var husky = function() {
 
   };
 
-  husky.updateBuffer = function( key ) {
+  husky.updateBuffer = function( key, visible ) {
+
+    if ( typeof visible === 'undefined' ) visible = true;
 
     var uri = husky.viewports[key].uri;
 
@@ -854,7 +884,8 @@ var husky = function() {
       doc: husky.viewports[key].CodeMirror.getDoc().copy(),
       history: husky.viewports[key].CodeMirror.getDoc().getHistory(),
       cursor: husky.viewports[key].CodeMirror.getDoc().getCursor(),
-      key: key
+      key: key,
+      visible: visible
     };
 
   }
@@ -870,9 +901,10 @@ var husky = function() {
   husky.clearBuffer = function( key ) {
 
     //Insert the latest doc into buffer.
-    husky.updateBuffer(key);
+    husky.updateBuffer(key,false);
 
     //Should I save the buffer first?
+    husky.buffers[husky.viewports[key].uri].visible = false;
     husky.viewports[key].CodeMirror.getDoc().setValue('');
     husky.viewports[key].uri = null;
     husky.viewports[key].lastSaved = 0;

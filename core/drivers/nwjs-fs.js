@@ -50,6 +50,31 @@ var nwjs = function( husky ) {
 
   };
 
+  nwg.touchFile = function( uri, callback ) {
+
+    fs.stat(uri, function(err,status){
+      if ( err ) {
+        //Create new file.
+
+        fs.writeFile(uri,'','utf8', function(err){
+          if ( err ) {
+            callback(err, uri);
+            return false;
+          }
+          callback(false,uri);
+        });
+
+
+      } else {
+        //Already exists.
+        callback('File already exists.', uri);
+      }
+    });
+
+    return true;
+
+  };
+
   nwg.ls = function( uri, callback ) {
 
     if ( uri === null ) {
