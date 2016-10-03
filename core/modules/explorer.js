@@ -117,7 +117,9 @@ var explorer = function( husky ) {
           {
             label: 'Copy',
             click: function(ctx,e) {
-              husky.log('Copying');
+              var uri = obj.uri;
+              var dir = obj.uri.substring(0,obj.uri.lastIndexOf('/'));
+              explorerm.copyFile(uri,dir);
             }
           },
           {
@@ -180,6 +182,28 @@ var explorer = function( husky ) {
 
   };
 
+  explorerm.copyFile = function( uri, dir ) {
+    if ( typeof uri === 'undefined' ) return false;
+
+    huskyCore.requestInput('New file name? (Writing to ' + dir + ', copying from ' + uri + ') ', function(stdin){
+
+      if ( stdin == '' ) return false;
+      var furi = dir + '/' + stdin;
+
+      huskyCore.modules.io.copy(uri, furi, function(err,nuri){
+        if ( err ) {
+          husky.error(err);
+          return false;
+        }
+
+        huskyCore.emit('buffersChange');
+
+      });
+
+    });
+
+  };
+
   explorerm.createNewFile = function( uri ) {
     if ( typeof uri === 'undefined' ) return false;
 
@@ -192,13 +216,13 @@ var explorer = function( husky ) {
       huskyCore.modules.io.touch(furi,function(err,uri){
         if ( err ) {
           husky.error(err);
+          return false;
         }
 
         husky.modules.io.openFileToBuffer([uri, huskyCore.currentViewport],2);
         huskyCore.emit('buffersChange');
 
       });
-      //huskyCore.modules.io.newBufferCmd([huskyCore.currentViewport, furi],2);
 
     });
 

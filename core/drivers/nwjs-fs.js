@@ -50,6 +50,32 @@ var nwjs = function( husky ) {
 
   };
 
+  nwg.copyFile = function( uri, furi, callback ) {
+
+    //Read the file.
+    fs.readFile(uri, function(err,data){
+      if ( err ) {
+        husky.error('Cannot copy ' + uri + ', file does not exist or no permission to access.');
+        callback(true,false);
+        return false;
+      }
+
+      fs.writeFile(furi, data, function(err){
+        if ( err ) {
+          husky.error('Error writing to ' + furi + '. Check your file permissions?');
+          callback(true,false);
+          return true;
+        }
+
+        callback(false,furi);
+
+      });
+
+    });
+
+
+  };
+
   nwg.touchFile = function( uri, callback ) {
 
     fs.stat(uri, function(err,status){

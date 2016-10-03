@@ -2,6 +2,20 @@ var io = function( husky ) {
 
   var iom = this;
 
+  iom.copy = function( uri, destUri, callback ) {
+
+    var fsDriver = husky.config.activeDriver.fs || null;
+    if (! fsDriver ) {
+      husky.error( 'No fs driver registered. Cannot io.copy.', 1 );
+      callback(true);
+      return false;
+    }
+
+    //Open file buffer.
+    husky.drivers[fsDriver].copyFile(uri, destUri, callback);
+
+  };
+
   /*
    * Tries to create a new file
    * @param  string uri The full URI of the file to create
@@ -13,8 +27,8 @@ var io = function( husky ) {
     //Does the file exist?
     var fsDriver = husky.config.activeDriver.fs || null;
     if (! fsDriver ) {
-      husky.error( 'No fs driver registered. Cannot fetchBufferByUri.', 1 );
-      callback();
+      husky.error( 'No fs driver registered. Cannot io.touch.', 1 );
+      callback(true);
       return false;
     }
 

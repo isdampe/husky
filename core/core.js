@@ -297,6 +297,10 @@ var husky = function() {
 
   husky.closeBuffer = function( key, furi ) {
 
+    husky.log('closeBuffer');
+    husky.log(key);
+    husky.log(furi);
+
     var uri, active = false;
 
     if ( key === false ) {
@@ -320,6 +324,9 @@ var husky = function() {
 
     } else {
       uri = husky.viewports[key].uri;
+      if ( husky.buffers[uri].visible === true ) {
+        active = true;
+      }
     }
 
     var callback = function() {
