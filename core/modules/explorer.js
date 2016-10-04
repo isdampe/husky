@@ -230,22 +230,46 @@ var explorer = function( husky ) {
 
   explorerm.refreshList = function() {
 
-    if ( husky.currentDirectory !== lastDirectoryUsed ) {
-      //Clear the list.
-      elList.innerHTML = '';
-      directoryList = [];
-      directories = {};
-      explorerm.prefillList(husky.currentDirectory);
-      lastDirectoryUsed = husky.currentDirectory;
-    }
+    var autoExpand = {};
 
+    //Save pre-opened folders.
     for ( var i=0; i<directoryList.length; i++ ) {
-      if ( husky.isBufferOpen(directoryList[i].uri) ) {
-        directoryList[i].el.classList.add('active');
-      } else {
-        directoryList[i].el.classList.remove('active');
+      if ( directoryList[i].el.classList.contains('expanded') ) {
+        var turi = directoryList[i].el.getAttribute('data-uri');
+        autoExpand[turi] = true;
       }
     }
+
+    //Clear the list.
+    elList.innerHTML = '';
+    directoryList = [];
+    directories = {};
+    explorerm.prefillList(husky.currentDirectory, false, function(){
+
+      for ( var i=0; i<directoryList.length; i++ ) {
+
+        var turi = directoryList[i].el.getAttribute('data-uri');
+        var ttype = directoryList[i].el.getAttribute('data-type');
+
+        if ( ttype == 'file' ) {
+
+          if ( husky.isBufferOpen(directoryList[i].uri) ) {
+            directoryList[i].el.classList.add('active');
+          } else {
+            directoryList[i].el.classList.remove('active');
+          }
+
+        } else if ( ttype == 'directory' ) {
+
+          if ( autoExpand.hasOwnProperty(turi) ) {
+            explorerm.expandSubFolder(turi, directoryList[i].el);
+          }
+
+        }
+      }
+
+    });
+    lastDirectoryUsed = husky.currentDirectory;
 
   };
 
@@ -278,11 +302,11 @@ var explorer = function( husky ) {
   };
 
   //Get directory contents.
-  explorerm.prefillList = function(uri, parent) {
+  explorerm.prefillList = function(uri, parent, callback) {
 
     var parentEl, noParent = false;
     if ( typeof uri === 'undefined' ) uri = null;
-    if ( typeof parent === 'undefined' ) {
+    if ( typeof parent === 'undefined' || parent === false ) {
       parent = elList;
       noParent = true;
     }
@@ -334,6 +358,10 @@ var explorer = function( husky ) {
       }
 
       directories[uri] = uri;
+
+      if ( typeof callback !== 'undefined' ) {
+        callback();
+      }
 
     });
 

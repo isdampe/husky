@@ -2,6 +2,13 @@ var io = function( husky ) {
 
   var iom = this;
 
+  /**
+   * Tries to copy a file to a new destination
+   * @param  {string}   uri      The full URI of the file to copy
+   * @param  {string}   destUri  The destination URI of where the new file should be created
+   * @param  {function} callback The callback function
+   * @return bool              Always true, unless an error occurs.
+   */
   iom.copy = function( uri, destUri, callback ) {
 
     var fsDriver = husky.config.activeDriver.fs || null;
@@ -16,10 +23,10 @@ var io = function( husky ) {
 
   };
 
-  /*
+  /**
    * Tries to create a new file
-   * @param  string uri The full URI of the file to create
-   * @param  function callback The callback function
+   * @param  {string} uri The full URI of the file to create
+   * @param  {function} callback The callback function
    * @return bool      Always true, error handling via callback
    */
   iom.touch = function( uri, callback ) {
